@@ -5,8 +5,8 @@ import { AppService } from './app.service';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Post('users')
-  getListUsers(@Body() body) {
-    return this.appService.getListUsers(body);
+  @Post('/')
+  public sayHello(@Body() body) {
+    return this.appService.sayHello(body);
   }
 }
