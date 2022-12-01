@@ -1,15 +1,4 @@
-import { sha256 } from 'js-sha256';
-
-const getSlackSignature = (req: any) => {
-  return req.headers['x-slack-signature'];
-};
-
-const hashSignature = (requestTime, payload, signature) => {
-  return (
-    'v0=' +
-    sha256.hmac(signature, `v0:${requestTime}:${payloadParser(payload)}`)
-  );
-};
+const crypto = require('crypto');
 
 const payloadParser = (payload) => {
   let result = '';
@@ -21,6 +10,15 @@ const payloadParser = (payload) => {
   return result;
 };
 
+const verifySignature = async function (req, body) {
+  const signature = req.headers['x-slack-signature'];
+  const timestamp = req.headers['x-slack-request-timestamp'];
+  const hmac = crypto.createHmac('sha256', process.env.SECRET_KEY);
+  const [version, hash] = signature.split('=');
+  hmac.update(`${version}:${timestamp}:${body}`);
+  return hmac.digest('hex') === hash;
+};
+
 const response = (status, message, data = null, error = null) => {
   return {
     status,
@@ -30,4 +28,4 @@ const response = (status, message, data = null, error = null) => {
   };
 };
 
-export { getSlackSignature, hashSignature, response, payloadParser };
+export { response, payloadParser, verifySignature };
