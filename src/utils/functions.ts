@@ -5,7 +5,20 @@ const getSlackSignature = (req: any) => {
 };
 
 const hashSignature = (requestTime, payload, signature) => {
-  return 'v0=' + sha256.hmac(signature, `v0:${requestTime}:${payload}`);
+  return (
+    'v0=' +
+    sha256.hmac(signature, `v0:${requestTime}:${payloadParser(payload)}`)
+  );
+};
+
+const payloadParser = (payload) => {
+  let result = '';
+  for (const key in payload) {
+    result += `&${key}=${payload[key]}`;
+  }
+  result = result.substring(1);
+  console.log('🚀 ~ file: functions.ts:21 ~ payloadParser ~ result', result);
+  return result;
 };
 
 const response = (status, message, data = null, error = null) => {
@@ -17,4 +30,4 @@ const response = (status, message, data = null, error = null) => {
   };
 };
 
-export { getSlackSignature, hashSignature, response };
+export { getSlackSignature, hashSignature, response, payloadParser };
