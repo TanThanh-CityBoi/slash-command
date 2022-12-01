@@ -21,6 +21,10 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
       slackSignature,
     );
     const payload = req.body;
+    console.log(
+      '🚀 ~ file: local.strategy.ts:24 ~ LocalStrategy ~ validate ~ payload',
+      payload,
+    );
     if (api_app_id !== process.env.APP_ID) {
       return {
         status: 400,
