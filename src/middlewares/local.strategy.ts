@@ -22,6 +22,10 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     );
     const payload = req.body;
     console.log(
+      '🚀 ~ file: local.strategy.ts:24 ~ LocalStrategy ~ validate ~ headerrr',
+      req.headers,
+    );
+    console.log(
       '🚀 ~ file: local.strategy.ts:24 ~ LocalStrategy ~ validate ~ payload',
       payload,
     );
@@ -32,7 +36,15 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
       };
     }
     const requestTime = req.headers['x-slack-request-timestamp'];
+    console.log(
+      '🚀 ~ file: local.strategy.ts:35 ~ LocalStrategy ~ validate ~ requestTime',
+      requestTime,
+    );
     const secretKey = process.env.SECRET_KEY;
+    console.log(
+      '🚀 ~ file: local.strategy.ts:40 ~ LocalStrategy ~ validate ~ secretKey',
+      secretKey,
+    );
     const hashPayload = await hashSignature(requestTime, payload, secretKey);
     console.log(
       '🚀 ~ file: local.strategy.ts:33 ~ LocalStrategy ~ validate ~ hashPayload',
