@@ -1,6 +1,6 @@
 import { Strategy } from 'passport-local';
 import { PassportStrategy } from '@nestjs/passport';
-import { Injectable } from '@nestjs/common';
+import { Injectable, RawBodyRequest } from '@nestjs/common';
 import { verifySignature } from 'src/utils';
 
 @Injectable()
@@ -13,17 +13,22 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     });
   }
   async validate(
-    req: Request,
+    req: RawBodyRequest<Request>,
     user_id: string,
     api_app_id: string,
   ): Promise<any> {
+    const rawBody = req.rawBody;
+    console.log(
+      '🚀 ~ file: local.strategy.ts:21 ~ LocalStrategy ~ classLocalStrategyextendsPassportStrategy ~ rawBody',
+      rawBody,
+    );
     if (api_app_id !== process.env.APP_ID) {
       return {
         status: 400,
         message: 'UNAUTHORIZE_SERVER',
       };
     }
-    if (!verifySignature(req, req.body)) {
+    if (!verifySignature(req, rawBody)) {
       return {
         status: 400,
         message: 'UNAUTHORIZE_SERVER',
