@@ -17,18 +17,18 @@ export class SlashAccount {
   @Column('datetime', { name: 'created_at', nullable: true })
   createdAt: Date | null;
 
-  @Column('bigint', { name: 'created_by', nullable: true })
+  @Column('varchar', { name: 'created_by', nullable: true })
   createdBy: string | null;
 
   @Column('datetime', { name: 'updated_at', nullable: true })
   updatedAt: Date | null;
 
-  @Column('bigint', { name: 'updated_by', nullable: true })
+  @Column('varchar', { name: 'updated_by', nullable: true })
   updatedBy: string | null;
 
   @Column('datetime', { name: 'deleted_at', nullable: true })
   deletedAt: Date | null;
 
-  @Column('bigint', { name: 'deleted_by', nullable: true })
+  @Column('varchar', { name: 'deleted_by', nullable: true })
   deletedBy: string | null;
 }
