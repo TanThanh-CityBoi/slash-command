@@ -13,7 +13,6 @@ export function badRequestRes(data: any) {
           text: ` *Command*: ${command} ${text} \n 
                   *CreatedBy*: <@${user_id}|${user_name}> \n 
                   *Time*: <!date^${timeStamp}^ {date_num} {time_secs}| 2014-02-18 6:39:42 AM PST>`,
-          emoji: true,
         },
       },
       {
