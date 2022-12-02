@@ -30,7 +30,7 @@ const verifySignature = async function (req, body) {
   hmac.update(`${version}:${timestamp}:${body}`);
   console.log(
     "🚀 ~ file: functions.ts:19 ~ verifySignature ~ hmac.digest('hex') === hash",
-    hmac.digest('hex') === hash,
+    hmac.digest('hex'),
   );
   return hmac.digest('hex') === hash;
 };
