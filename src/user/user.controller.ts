@@ -20,9 +20,9 @@ export class UserController {
       return response(400, 'COMMAND_NOT_FOUND');
     }
     const _getResult = {
-      NULL_PARAM: () => this.service.getList(body, req),
-      list: () => this.service.getList(body, req),
-      '-l': () => this.service.getList(body, req),
+      NULL_PARAM: () => this.service.getList(req),
+      list: () => this.service.getList(req),
+      '-l': () => this.service.getList(req),
     };
     return _getResult[firstParam]();
   }

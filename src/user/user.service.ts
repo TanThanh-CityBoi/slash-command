@@ -5,8 +5,8 @@ import { getRepository } from 'typeorm';
 
 @Injectable()
 export class UserService {
-  getList(body: any, req: any) {
-    const { user } = req.user;
+  getList(req: any) {
+    const user = req.user.data;
     if (user.role != ROLE.ADMIN) {
       return response(400, 'PERMISSION_DENIED');
     }
