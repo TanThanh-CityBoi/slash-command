@@ -4,7 +4,7 @@ export function badRequestRes(data: any) {
   const { user_id, user_name, command, text } = body;
   const timeStamp = req.headers['x-slack-request-timestamp'];
 
-  const headerContent = `*Command*: ${command} ${text}
+  const headerContent = ` *Command*: ${command} ${text}
   *CreatedBy*: <@${user_id}|${user_name}>
   *Time*: <!date^${timeStamp}^ {date_num} {time_secs}| 2014-02-18 6:39:42 AM PST>
   `;
