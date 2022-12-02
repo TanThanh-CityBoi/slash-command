@@ -5,6 +5,8 @@ const COMMANDS = {
       NULL: 'NULL_PARAM',
       LIST: 'list',
       _L: '-l',
+      ADD: 'add',
+      _A: '-a',
     },
   },
 };
