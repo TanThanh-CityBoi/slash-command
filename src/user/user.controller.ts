@@ -1,5 +1,6 @@
 import { Body, Controller, Post, Request } from '@nestjs/common';
-import { COMMANDS, response, USR_COMMAND } from 'src/utils';
+import { COMMANDS, response } from 'src/utils';
+import { isDeepStrictEqual } from 'util';
 import { UserService } from './user.service';
 
 @Controller('user')
@@ -11,18 +12,27 @@ export class UserController {
     if (req.user.status != 200) {
       return req.user;
     }
+
+    //check existed command + param
+    const USER_CMD = COMMANDS._USER;
     const { command, text } = body;
     const firstParam = text.split(' ')[0] || 'NULL_PARAM';
     if (
-      !COMMANDS.includes(command) ||
-      !Object.values(USR_COMMAND).includes(firstParam)
+      !isDeepStrictEqual(command, USER_CMD.command) ||
+      !Object.values(USER_CMD.params).includes(firstParam)
     ) {
       return response(400, 'COMMAND_NOT_FOUND');
     }
+
+    //switch param
     const _getResult = {
+      //list user
       NULL_PARAM: () => this.service.getList(req),
       list: () => this.service.getList(req),
       '-l': () => this.service.getList(req),
+      // add user
+      add: () => this.service.createAccount(body, req),
+      '-a': () => this.service.createAccount(body, req),
     };
     return _getResult[firstParam]();
   }

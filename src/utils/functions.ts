@@ -9,6 +9,12 @@ const verifySignature = (req, body) => {
   return hmac.digest('hex') === hash;
 };
 
+const parseInfo = (rawInfo: string) => {
+  let [userId, userName] = rawInfo.split('|');
+  userId = userId.replace('<', '').replace('@', '').trim();
+  userName = userName.replace('>', '').trim();
+  return [userId, userName];
+};
 const response = (status, message, data = null, error = null) => {
   return {
     status,
@@ -18,4 +24,4 @@ const response = (status, message, data = null, error = null) => {
   };
 };
 
-export { response, verifySignature };
+export { response, verifySignature, parseInfo };
