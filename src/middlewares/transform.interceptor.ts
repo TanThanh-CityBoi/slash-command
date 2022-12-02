@@ -15,10 +15,6 @@ export class TransformInterceptor implements NestInterceptor {
     const { body } = req;
     return next.handle().pipe(
       map((data) => {
-        console.log(
-          '🚀 ~ file: transform.interceptor.ts:18 ~ TransformInterceptor ~ map ~ data',
-          data,
-        );
         const response = {
           status: 200,
           message: 'SUCCESS',
@@ -26,28 +22,18 @@ export class TransformInterceptor implements NestInterceptor {
           errors: null,
         };
         if (!data) {
-          // context.switchToHttp().getResponse().status(500);
-          return Object.assign(response, {
+          const result = Object.assign(response, {
             status: 500,
             message: 'INTERNAL_SERVER_ERROR',
           });
+          return slackResponse({ req, body, response: result.toString() });
         }
         if (data.status && data.message) {
-          // context.switchToHttp().getResponse().status(data.status);
           const result = Object.assign(response, data);
-          console.log(
-            '🚀 ~ file: transform.interceptor.ts:38 ~ TransformInterceptor ~ map ~ result',
-            result,
-          );
-          return slackResponse({ req, body, response: result });
+          return slackResponse({ req, body, response: result.toString() });
         }
-        // context.switchToHttp().getResponse().status(200);
         const result = Object.assign(response, { data });
-        console.log(
-          '🚀 ~ file: transform.interceptor.ts:46 ~ TransformInterceptor ~ map ~ result',
-          result,
-        );
-        return slackResponse({ req, body, response: result });
+        return slackResponse({ req, body, response: result.toString() });
       }),
     );
   }
