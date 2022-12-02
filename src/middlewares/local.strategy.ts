@@ -2,45 +2,28 @@ import { Strategy } from 'passport-local';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, RawBodyRequest } from '@nestjs/common';
 import { verifySignature } from 'src/utils';
-import { RequestContext } from 'nestjs-request-context';
+import { UserService } from 'src/user/user.service';
+import { isEmpty } from 'lodash';
+import { response } from 'src/utils';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
-  constructor() {
+  constructor(private readonly userService: UserService) {
     super({
       usernameField: 'user_id',
       passwordField: 'api_app_id',
       passReqToCallback: true,
     });
   }
-  async validate(
-    req: RawBodyRequest<Request>,
-    user_id: string,
-    api_app_id: string,
-  ): Promise<any> {
-    const requestContext: any = RequestContext.currentContext.req;
-    console.log(
-      '🚀 ~ file: local.strategy.ts:22 ~ LocalStrategy ~ classLocalStrategyextendsPassportStrategy ~ requestContext',
-      requestContext.rawBody,
-    );
-
+  async validate(req: RawBodyRequest<Request>, user_id: string): Promise<any> {
     const rawBody = req.rawBody;
-    console.log(
-      '🚀 ~ file: local.strategy.ts:21 ~ LocalStrategy ~ classLocalStrategyextendsPassportStrategy ~ rawBody',
-      rawBody,
-    );
-    if (api_app_id !== process.env.APP_ID) {
-      return {
-        status: 400,
-        message: 'UNAUTHORIZE_SERVER',
-      };
-    }
     if (!verifySignature(req, rawBody)) {
-      return {
-        status: 400,
-        message: 'UNAUTHORIZE_SERVER',
-      };
+      return response(401, 'UNAUTHORIZED_APP');
     }
-    return { user_id, api_app_id };
+    const user = await this.userService.getOne({ user_id });
+    if (isEmpty(user)) {
+      return response(401, 'UNAUTHORIZED_USER');
+    }
+    return user;
   }
 }

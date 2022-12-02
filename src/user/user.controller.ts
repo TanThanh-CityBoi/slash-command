@@ -13,6 +13,6 @@ export class UserController {
     if (req.user.status != 200) {
       return response(req.user.status, req.user.message);
     }
-    return this.service.getList(body);
+    return this.service.getList(body, req.user);
   }
 }
