@@ -26,19 +26,27 @@ export class TransformInterceptor implements NestInterceptor {
           errors: null,
         };
         if (!data) {
-          context.switchToHttp().getResponse().status(500);
+          // context.switchToHttp().getResponse().status(500);
           return Object.assign(response, {
             status: 500,
             message: 'INTERNAL_SERVER_ERROR',
           });
         }
         if (data.status && data.message) {
-          context.switchToHttp().getResponse().status(data.status);
+          // context.switchToHttp().getResponse().status(data.status);
           const result = Object.assign(response, data);
+          console.log(
+            '🚀 ~ file: transform.interceptor.ts:38 ~ TransformInterceptor ~ map ~ result',
+            result,
+          );
           return slackResponse({ req, body, response: result });
         }
-        context.switchToHttp().getResponse().status(200);
+        // context.switchToHttp().getResponse().status(200);
         const result = Object.assign(response, { data });
+        console.log(
+          '🚀 ~ file: transform.interceptor.ts:46 ~ TransformInterceptor ~ map ~ result',
+          result,
+        );
         return slackResponse({ req, body, response: result });
       }),
     );
