@@ -1,8 +1,13 @@
 export function slackResponse(data: any) {
   const { req, body, response } = data;
+  console.log('🚀 ~ file: slack.response.ts:3 ~ slackResponse ~ body', body);
   const { status, message, errors } = response;
   const { user_id, user_name, command, text } = body;
   const timeStamp = req.headers['x-slack-request-timestamp'];
+  console.log(
+    '🚀 ~ file: slack.response.ts:7 ~ slackResponse ~ timeStamp',
+    timeStamp,
+  );
 
   const headerContent =
     `*Command*: ${command} ${text} \n` +
