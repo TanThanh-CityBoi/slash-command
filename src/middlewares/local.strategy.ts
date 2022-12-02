@@ -2,13 +2,14 @@ import { Strategy } from 'passport-local';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, RawBodyRequest } from '@nestjs/common';
 import { verifySignature } from 'src/utils';
-import { UserService } from 'src/user/user.service';
 import { isEmpty } from 'lodash';
 import { response } from 'src/utils';
+import { getRepository } from 'typeorm';
+import { SlashAccount } from 'src/entities';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
-  constructor(private readonly userService: UserService) {
+  constructor() {
     super({
       usernameField: 'user_id',
       passwordField: 'api_app_id',
@@ -20,7 +21,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     if (!verifySignature(req, rawBody)) {
       return response(401, 'UNAUTHORIZED_APP');
     }
-    const user = await this.userService.getOne({
+    const user = await getRepository(SlashAccount).findOne({
       userId: user_id,
       deletedAt: null,
     });
