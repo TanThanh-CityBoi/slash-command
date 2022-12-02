@@ -8,6 +8,8 @@ import { UserService } from './user/user.service';
 import { ConfigModule } from '@nestjs/config';
 import { UserModule } from './user/user.module';
 import { RequestContextModule } from 'nestjs-request-context';
+import { LocalAuthGuard, TransformInterceptor } from './middlewares';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -30,6 +32,17 @@ import { RequestContextModule } from 'nestjs-request-context';
     RequestContextModule,
   ],
   controllers: [AppController, UserController],
-  providers: [AppService, UserService],
+  providers: [
+    AppService,
+    UserService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: TransformInterceptor,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: LocalAuthGuard,
+    },
+  ],
 })
 export class AppModule {}

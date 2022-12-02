@@ -1,6 +1,6 @@
-export function badRequestRes(data: any) {
-  const { req, body } = data;
-  const { status, message, errors } = req.user;
+export function slackResponse(data: any) {
+  const { req, body, response } = data;
+  const { status, message, errors } = response;
   const { user_id, user_name, command, text } = body;
   const timeStamp = req.headers['x-slack-request-timestamp'];
 
@@ -13,6 +13,7 @@ export function badRequestRes(data: any) {
     `:star: :star: :star: \n \n ` +
     `*Status*: \`${status}\` \n` +
     `*Message*: \`${message}\` \n` +
+    `*Data*: \`${response.data || null}\` ` +
     `*Errors*: \`${errors || null}\``;
 
   return {

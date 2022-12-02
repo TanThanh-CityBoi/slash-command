@@ -1,1 +1,1 @@
-export * from './bad-request.response';
+export * from './slack.response';
