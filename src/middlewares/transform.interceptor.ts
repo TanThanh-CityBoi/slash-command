@@ -15,6 +15,10 @@ export class TransformInterceptor implements NestInterceptor {
     const { body } = req;
     return next.handle().pipe(
       map((data) => {
+        console.log(
+          '🚀 ~ file: transform.interceptor.ts:18 ~ TransformInterceptor ~ map ~ data',
+          data,
+        );
         const response = {
           status: 200,
           message: 'SUCCESS',
