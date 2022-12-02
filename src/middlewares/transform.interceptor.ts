@@ -26,14 +26,14 @@ export class TransformInterceptor implements NestInterceptor {
             status: 500,
             message: 'INTERNAL_SERVER_ERROR',
           });
-          return slackResponse({ req, body, response: result.toString() });
+          return slackResponse({ req, body, response: result });
         }
         if (data.status && data.message) {
           const result = Object.assign(response, data);
-          return slackResponse({ req, body, response: result.toString() });
+          return slackResponse({ req, body, response: result });
         }
         const result = Object.assign(response, { data });
-        return slackResponse({ req, body, response: result.toString() });
+        return slackResponse({ req, body, response: result });
       }),
     );
   }
