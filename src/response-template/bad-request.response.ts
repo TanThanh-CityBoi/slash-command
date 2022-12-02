@@ -1,32 +1,18 @@
-import { time } from 'console';
-
 export function badRequestRes(data: any) {
   const { req, body } = data;
   const { status, message, errors } = req.user;
-  const { user_id, command, text } = body;
+  const { user_id, user_name, command, text } = body;
+  const timeStamp = req.headers['x-slack-request-timestamp'];
+
   return {
     blocks: [
       {
-        type: 'header',
+        type: 'section',
         text: {
-          type: 'plain_text',
-          text: `UserID: ${user_id}`,
-          emoji: true,
-        },
-      },
-      {
-        type: 'header',
-        text: {
-          type: 'plain_text',
-          text: `Command: ${command} ${text}`,
-          emoji: true,
-        },
-      },
-      {
-        type: 'header',
-        text: {
-          type: 'plain_text',
-          text: `Time: ${time}`,
+          type: 'mrkdwn',
+          text: ` *Command*: ${command} ${text} \n 
+                  *CreatedBy*: <@${user_id}|${user_name}> \n 
+                  *Time*: <!date^${timeStamp}^ {date_num} {time_secs}| 2014-02-18 6:39:42 AM PST>`,
           emoji: true,
         },
       },
@@ -37,28 +23,11 @@ export function badRequestRes(data: any) {
         type: 'section',
         text: {
           type: 'mrkdwn',
-          text: ':ghost: :ghost: :ghost:',
+          text: `:star: :star: :star: \n\n 
+                *Status:* \`${status}\` \n 
+                *Message:* \`${message}\` \n 
+                *Errors:* \`${errors || null}\``,
         },
-      },
-      {
-        type: 'section',
-        fields: [
-          {
-            type: 'plain_text',
-            text: `Status: ${status}`,
-            emoji: true,
-          },
-          {
-            type: 'plain_text',
-            text: `Status: ${message}`,
-            emoji: true,
-          },
-          {
-            type: 'plain_text',
-            text: `Errors: ${errors}`,
-            emoji: true,
-          },
-        ],
       },
     ],
   };
