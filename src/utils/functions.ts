@@ -10,6 +10,7 @@ const payloadParser = (payload) => {
 };
 
 const verifySignature = async function (req, body) {
+  console.log('🚀 ~ file: functions.ts:13 ~ verifySignature ~ body', body);
   console.log(
     '🚀 ~ file: functions.ts:13 ~ verifySignature ~ req',
     req.headers,
