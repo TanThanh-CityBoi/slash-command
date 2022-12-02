@@ -4,9 +4,8 @@ import { getRepository } from 'typeorm';
 
 @Injectable()
 export class UserService {
-  async getOne(data: any): Promise<SlashAccount> {
-    const { user_id } = data;
-    return await getRepository(SlashAccount).findOne({ userId: user_id });
+  async getOne(condition: any): Promise<SlashAccount> {
+    return getRepository(SlashAccount).findOne(condition);
   }
 
   getList(body: any, user: any) {
