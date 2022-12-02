@@ -16,7 +16,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     });
   }
   async validate(req: RawBodyRequest<Request>, user_id: string): Promise<any> {
-    const rawBody = req.rawBody;
+    const { rawBody } = req;
     if (!verifySignature(req, rawBody)) {
       return response(401, 'UNAUTHORIZED_APP');
     }
