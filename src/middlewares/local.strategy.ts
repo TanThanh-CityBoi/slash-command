@@ -27,6 +27,6 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     if (isEmpty(user)) {
       return response(401, 'UNAUTHORIZED_USER');
     }
-    return user;
+    return response(200, 'OK', user);
   }
 }
