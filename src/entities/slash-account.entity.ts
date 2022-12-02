@@ -14,6 +14,9 @@ export class SlashAccount {
   @Column('text', { nullable: true, name: 'github_token' })
   githubToken: string;
 
+  @Column('varchar', { nullable: true, name: 'role', default: 'USER' })
+  role: string;
+
   @Column('datetime', { name: 'created_at', nullable: true })
   createdAt: Date | null;
 
