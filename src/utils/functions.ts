@@ -1,5 +1,6 @@
 import * as crypto from 'crypto';
-import * as fs from 'fs';
+import * as fs from 'fs/promises';
+import { join } from 'path';
 
 const verifySignature = (req, body) => {
   const signature = req.headers['x-slack-signature'];
@@ -26,16 +27,17 @@ const response = (status, message, data = null, error = null) => {
   };
 };
 
-function _getData() {
+const _getData = async () => {
   let user;
-  fs.readFile('../data/account.json', 'utf-8', (err, data) => {
-    if (err) {
-      return { errors: err };
-    }
-    user = JSON.parse(data.toString());
-  });
-  console.log(user);
+  await fs
+    .readFile(join(__dirname, '../../data', 'account.json'), 'utf-8')
+    .then((data) => {
+      user = JSON.parse(data.toString());
+    })
+    .catch((error) => {
+      return { errors: error };
+    });
   return user;
-}
+};
 
 export { response, verifySignature, parseInfo, _getData };

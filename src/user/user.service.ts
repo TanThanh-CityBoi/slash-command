@@ -3,21 +3,21 @@ import { AccountDTO } from 'src/dto/account.dto';
 import { response, ROLE, _getData } from 'src/utils';
 @Injectable()
 export class UserService {
-  public findById(userId): Promise<AccountDTO | null> {
-    const data = _getData();
-    if (!data.errors || !data.users.length) return null;
-    const users = data.users;
-    return users.findOne((user) => user.userId === userId);
+  public async findById(userId: string): Promise<AccountDTO | null> {
+    const data = await _getData();
+    if (!data || data.errors || !data.accounts.length) return null;
+    const accounts = data.accounts;
+    return accounts.find((account) => account.userId === userId);
   }
 
-  public getList(req: any) {
+  public async getList(req: any) {
     const user = req.user.data;
     if (user.role != ROLE.ADMIN) {
       return response(400, 'PERMISSION_DENIED');
     }
-    const data = _getData();
-    if (!data.errors || !data.users.length) return null;
-    return data.users;
+    const data = await _getData();
+    if (!data.errors || !data.accounts.length) return null;
+    return data.accounts;
   }
 
   // public async createAccount(body: any, req: any) {

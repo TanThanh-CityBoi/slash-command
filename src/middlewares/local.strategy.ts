@@ -20,9 +20,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     if (!verifySignature(req, rawBody)) {
       return response(401, 'UNAUTHORIZED_APP');
     }
-    const user = await this.userService.findById({
-      userId: user_id,
-    });
+    const user = await this.userService.findById(user_id);
     if (isEmpty(user)) {
       return response(401, 'UNAUTHORIZED_USER');
     }
