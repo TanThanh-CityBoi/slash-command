@@ -18,6 +18,12 @@ const parseInfo = (rawInfo: string) => {
   return [userId, userName];
 };
 
+const generateRequestId = () => {
+  const time = Date.now().toString();
+  const randomNumbers = Math.floor(Math.random() * (1000 - 100) + 100);
+  return time + randomNumbers.toString();
+};
+
 const response = (status, message, data = null, error = null) => {
   return {
     status,
@@ -40,4 +46,4 @@ const _getData = async () => {
   return user;
 };
 
-export { response, verifySignature, parseInfo, _getData };
+export { response, verifySignature, parseInfo, _getData, generateRequestId };
