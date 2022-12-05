@@ -4,12 +4,11 @@ import { Injectable, RawBodyRequest } from '@nestjs/common';
 import { verifySignature } from 'src/utils';
 import { isEmpty } from 'lodash';
 import { response } from 'src/utils';
-import { getRepository } from 'typeorm';
-import { SlashAccount } from 'src/entities';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
-  constructor() {
+  constructor(private readonly userService: UserService) {
     super({
       usernameField: 'user_id',
       passwordField: 'api_app_id',
@@ -21,9 +20,8 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     if (!verifySignature(req, rawBody)) {
       return response(401, 'UNAUTHORIZED_APP');
     }
-    const user = await getRepository(SlashAccount).findOne({
+    const user = await this.userService.findById({
       userId: user_id,
-      deletedAt: null,
     });
     if (isEmpty(user)) {
       return response(401, 'UNAUTHORIZED_USER');

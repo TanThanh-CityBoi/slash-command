@@ -1,4 +1,5 @@
 import * as crypto from 'crypto';
+import * as fs from 'fs';
 
 const verifySignature = (req, body) => {
   const signature = req.headers['x-slack-signature'];
@@ -15,6 +16,7 @@ const parseInfo = (rawInfo: string) => {
   userName = userName.replace('>', '').trim();
   return [userId, userName];
 };
+
 const response = (status, message, data = null, error = null) => {
   return {
     status,
@@ -24,4 +26,16 @@ const response = (status, message, data = null, error = null) => {
   };
 };
 
-export { response, verifySignature, parseInfo };
+function _getData() {
+  let user;
+  fs.readFile('../data/account.json', 'utf-8', (err, data) => {
+    if (err) {
+      return { errors: err };
+    }
+    user = JSON.parse(data.toString());
+  });
+  console.log(user);
+  return user;
+}
+
+export { response, verifySignature, parseInfo, _getData };

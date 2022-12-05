@@ -31,8 +31,8 @@ export class UserController {
       list: () => this.service.getList(req),
       '-l': () => this.service.getList(req),
       // add user
-      add: () => this.service.createAccount(body, req),
-      '-a': () => this.service.createAccount(body, req),
+      // add: () => this.service.createAccount(body, req),
+      // '-a': () => this.service.createAccount(body, req),
     };
     return _getResult[firstParam]();
   }
