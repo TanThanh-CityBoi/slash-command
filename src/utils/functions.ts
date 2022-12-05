@@ -1,6 +1,8 @@
 import * as crypto from 'crypto';
 import * as fs from 'fs/promises';
 import { join } from 'path';
+import { AccountDTO } from 'src/dto';
+// import { AccountDTO } from 'src/dto';
 
 const verifySignature = (req, body) => {
   const signature = req.headers['x-slack-signature'];
@@ -24,26 +26,55 @@ const generateRequestId = () => {
   return time + randomNumbers.toString();
 };
 
-const response = (status, message, data = null, error = null) => {
+const response = (status, message, data = null, errors = null) => {
   return {
     status,
     message,
     data,
-    error,
+    errors,
   };
 };
 
-const _getData = async () => {
-  let user;
+const _getData = async (fileName: string): Promise<any> => {
+  let objData;
   await fs
-    .readFile(join(__dirname, '../../data', 'account.json'), 'utf-8')
+    .readFile(join(__dirname, '../../data', fileName), 'utf-8')
     .then((data) => {
-      user = JSON.parse(data.toString());
+      objData = JSON.parse(data.toString());
     })
     .catch((error) => {
       return { errors: error };
     });
-  return user;
+  return objData;
 };
 
-export { response, verifySignature, parseInfo, _getData, generateRequestId };
+const _saveData = async (account: AccountDTO, fileName): Promise<any> => {
+  let objData;
+  await fs
+    .readFile(join(__dirname, '../../data', fileName), 'utf-8')
+    .then((data) => {
+      objData = JSON.parse(data.toString());
+    })
+    .catch((error) => {
+      return { errors: error };
+    });
+  objData.push(account);
+  try {
+    await fs.writeFile(
+      join(__dirname, '../../data', fileName),
+      JSON.stringify(objData),
+    );
+    return account;
+  } catch (error) {
+    return { errors: error };
+  }
+};
+
+export {
+  response,
+  verifySignature,
+  parseInfo,
+  _getData,
+  generateRequestId,
+  _saveData,
+};
