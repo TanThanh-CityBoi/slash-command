@@ -16,7 +16,9 @@ export class UserService {
       return response(400, 'PERMISSION_DENIED');
     }
     const data = await _getData();
-    if (!data.errors || !data.accounts.length) return null;
+    if (!data || data.errors || !data.accounts.length) {
+      return response(404, 'NOT_FOUND');
+    }
     return data.accounts;
   }
 
