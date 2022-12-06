@@ -34,6 +34,14 @@ export class UserController {
       // add user
       add: () => this.service.createAccount(body, req),
       '-a': () => this.service.createAccount(body, req),
+
+      // remove user
+      delete: () => this.service.deleteAccount(body, req),
+      '-d': () => this.service.deleteAccount(body, req),
+
+      // update info
+      token: () => this.service.updateInfo(body, req, 'githubToken'),
+      role: () => this.service.updateInfo(body, req, 'role'),
     };
     return _getResult[firstParam]();
   }

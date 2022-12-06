@@ -1,8 +1,6 @@
 import * as crypto from 'crypto';
 import * as fs from 'fs/promises';
 import { join } from 'path';
-import { AccountDTO } from 'src/dto';
-// import { AccountDTO } from 'src/dto';
 
 const verifySignature = (req, body) => {
   const signature = req.headers['x-slack-signature'];
@@ -48,26 +46,20 @@ const _getData = async (fileName: string): Promise<any> => {
   return objData;
 };
 
-const _saveData = async (account: AccountDTO, fileName): Promise<any> => {
-  let objData;
-  await fs
-    .readFile(join(__dirname, '../../data', fileName), 'utf-8')
-    .then((data) => {
-      objData = JSON.parse(data.toString());
-    })
-    .catch((error) => {
-      return { errors: error };
-    });
-  objData.push(account);
+const _saveData = async (data: any, fileName): Promise<any> => {
   try {
     await fs.writeFile(
       join(__dirname, '../../data', fileName),
-      JSON.stringify(objData),
+      JSON.stringify(data),
     );
-    return account;
+    return { message: 'CREATE_OK' };
   } catch (error) {
     return { errors: error };
   }
+};
+
+const isCorrectUser = (userInfo: string): boolean => {
+  return /<@\w+[|]\w+>/.test(userInfo);
 };
 
 export {
@@ -77,4 +69,5 @@ export {
   _getData,
   generateRequestId,
   _saveData,
+  isCorrectUser,
 };
