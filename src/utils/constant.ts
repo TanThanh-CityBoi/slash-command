@@ -30,6 +30,11 @@ const COMMANDS = {
     command: '/tnt',
     params: ['NULL_PARAM'],
   },
+  _ABC: [
+    { cmd: '/abc', prm: ['NULL_PARAM'] },
+    { cmd: '/abc', prm: ['-d', 'rawInfo'] },
+    { cmd: '/abc', prm: ['-l'] },
+  ],
 };
 
 const ROLE = {

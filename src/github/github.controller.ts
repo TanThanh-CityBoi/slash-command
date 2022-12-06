@@ -24,7 +24,7 @@ export class GithubController {
       NULL_PARAM: () => {
         return response(400, 'COMMAND_NOT_FOUND');
       },
-      '-lb': () => this.service.getListBranch(req),
+      '-lb': () => this.service.getListBranch(body),
     };
     return _getResult[firstParam]();
   }

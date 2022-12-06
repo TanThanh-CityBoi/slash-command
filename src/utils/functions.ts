@@ -3,12 +3,13 @@ import * as fs from 'fs/promises';
 import { join } from 'path';
 import { isEqual } from 'lodash';
 
-const verifySignature = (req, body) => {
+const verifySignature = (req, rawBody, teamDomain) => {
   const signature = req.headers['x-slack-signature'];
   const timestamp = req.headers['x-slack-request-timestamp'];
-  const hmac = crypto.createHmac('sha256', process.env.SECRET_KEY);
+  const secret = process.env[`SECRET_KEY_${teamDomain.trim().toUpperCase()}`];
+  const hmac = crypto.createHmac('sha256', secret);
   const [version, hash] = signature.split('=');
-  hmac.update(`${version}:${timestamp}:${body}`);
+  hmac.update(`${version}:${timestamp}:${rawBody}`);
   return hmac.digest('hex') === hash;
 };
 
@@ -17,6 +18,11 @@ const parseInfo = (rawInfo: string) => {
   userId = userId.replace('<', '').replace('@', '').trim();
   userName = userName.replace('>', '').trim();
   return [userId, userName];
+};
+
+const getTeamDomain = (body: any): string => {
+  const { team_domain } = body;
+  return team_domain.trim().toUpperCase();
 };
 
 const generateRequestId = () => {
@@ -66,6 +72,7 @@ const isCorrectUser = (userInfo: string): boolean => {
 const getFirstParam = (body: any, commands: any) => {
   const { command, text } = body;
   const firstParam = text.split(' ')[0] || 'NULL_PARAM';
+  // check parammmm????
   return isEqual(command, commands.command) &&
     commands.params.includes(firstParam)
     ? firstParam
@@ -81,4 +88,5 @@ export {
   _saveData,
   isCorrectUser,
   getFirstParam,
+  getTeamDomain,
 };

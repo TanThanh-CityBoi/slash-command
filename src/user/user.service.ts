@@ -108,6 +108,7 @@ export class UserService {
     const params = body.text;
     const valueUpdate = params.split(' ')[1];
     if (!valueUpdate) {
+      ////
       return response(400, 'COMMAND_NOT_FOUND');
     }
     const existedUserParam = params.split(' ')[2];
