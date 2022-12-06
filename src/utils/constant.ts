@@ -17,6 +17,15 @@ const COMMANDS = {
       'role',
     ],
   },
+  _GITHUB: {
+    command: '/git',
+    params: [
+      'NULL_PARAM',
+      //
+      'list',
+      '-l',
+    ],
+  },
 };
 
 const ROLE = {

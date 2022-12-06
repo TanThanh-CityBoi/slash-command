@@ -1,6 +1,6 @@
 import { Body, Controller, Post, Request } from '@nestjs/common';
-import { COMMANDS, response } from 'src/utils';
-import { isDeepStrictEqual } from 'util';
+import { COMMANDS, getFirstParam, response } from 'src/utils';
+import { isEmpty } from 'lodash';
 import { UserService } from './user.service';
 
 @Controller('user')
@@ -8,19 +8,13 @@ export class UserController {
   constructor(private readonly service: UserService) {}
 
   @Post('')
-  public async getList(@Body() body, @Request() req) {
+  public async manageUser(@Body() body, @Request() req) {
     if (req.user.status != 200) {
       return req.user;
     }
-
-    //check existed command + param
-    const USER_CMD = COMMANDS._USER;
-    const { command, text } = body;
-    const firstParam = text.split(' ')[0] || 'NULL_PARAM';
-    if (
-      !isDeepStrictEqual(command, USER_CMD.command) ||
-      !USER_CMD.params.includes(firstParam)
-    ) {
+    //check existed param
+    const firstParam = getFirstParam(body, COMMANDS._USER);
+    if (isEmpty(firstParam)) {
       return response(400, 'COMMAND_NOT_FOUND');
     }
 

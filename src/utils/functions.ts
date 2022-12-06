@@ -1,6 +1,7 @@
 import * as crypto from 'crypto';
 import * as fs from 'fs/promises';
 import { join } from 'path';
+import { isEqual } from 'lodash';
 
 const verifySignature = (req, body) => {
   const signature = req.headers['x-slack-signature'];
@@ -62,6 +63,15 @@ const isCorrectUser = (userInfo: string): boolean => {
   return /<@\w+[|]\w+>/.test(userInfo);
 };
 
+const getFirstParam = (body: any, commands: any) => {
+  const { command, text } = body;
+  const firstParam = text.split(' ')[0] || 'NULL_PARAM';
+  return isEqual(command, commands.command) &&
+    commands.params.includes(firstParam)
+    ? firstParam
+    : null;
+};
+
 export {
   response,
   verifySignature,
@@ -70,4 +80,5 @@ export {
   generateRequestId,
   _saveData,
   isCorrectUser,
+  getFirstParam,
 };
