@@ -14,6 +14,12 @@ import {
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { OgmaModule } from '@ogma/nestjs-module';
 import { RequestContextModule } from 'nestjs-request-context';
+import { GithubService } from './github/github.service';
+import { TntService } from './tnt/tnt.service';
+import { GithubController } from './github/github.controller';
+import { TntController } from './tnt/tnt.controller';
+import { TntModule } from './tnt/tnt.module';
+import { GithubModule } from './github/github.module';
 
 @Module({
   imports: [
@@ -35,11 +41,15 @@ import { RequestContextModule } from 'nestjs-request-context';
     }),
     RequestContextModule,
     UserModule,
+    TntModule,
+    GithubModule,
   ],
-  controllers: [AppController, UserController],
+  controllers: [AppController, UserController, GithubController, TntController],
   providers: [
     AppService,
     UserService,
+    GithubService,
+    TntService,
     {
       provide: APP_INTERCEPTOR,
       useClass: TntInterceptor,

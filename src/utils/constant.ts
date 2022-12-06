@@ -26,10 +26,15 @@ const COMMANDS = {
       '-l',
     ],
   },
+  _TNT: {
+    command: '/tnt',
+    params: ['NULL_PARAM'],
+  },
 };
 
 const ROLE = {
   ADMIN: 'ADMIN',
+  USER: 'USER',
 };
 
 export { COMMANDS, ROLE };
