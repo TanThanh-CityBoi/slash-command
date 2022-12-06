@@ -41,14 +41,19 @@ export class UserService {
       return response(400, 'COMMAND_NOT_FOUND');
     }
     const [userId, userName] = await parseInfo(rawInfo);
+    const users = await _getData('account.json');
+    const existedUser = users.find((x) => x.userId === userId);
+    if (!isEmpty(existedUser)) {
+      return response(400, 'EXISTED_USER');
+    }
     const newUser = new AccountDTO();
     newUser.userId = userId;
     newUser.userName = userName;
     newUser.role = 'USER';
+    newUser.githubToken = '';
     newUser.createdAt = new Date();
     newUser.createdBy = user.userId;
 
-    const users = await _getData('account.json');
     users.push(newUser);
     const result = await _saveData(users, 'account.json');
     if (isEmpty(result) || !isEmpty(result.errors)) {
@@ -72,11 +77,9 @@ export class UserService {
     if (isEmpty(existedUser)) {
       return response(404, 'USER_NOT_FOUND');
     }
-
     const users = await _getData('account.json');
-    users.filter((x) => x.userId !== userId);
-
-    const result = await _saveData(users, 'account.json');
+    const newdata = users.filter((x) => x.userId !== userId);
+    const result = await _saveData(newdata, 'account.json');
     if (isEmpty(result) || !isEmpty(result.errors)) {
       return response(400, 'ERROR', null, result.errors);
     }
@@ -89,15 +92,15 @@ export class UserService {
     if (index < 0) {
       return response(404, 'USER_NOT_FOUND');
     }
-    if (users[index].hasOwnProperty(field)) {
-      return response(400, 'UPDATE_FIELD_NOT_EXISTED');
+    if (!users[index].hasOwnProperty(field)) {
+      return response(400, 'UPDATE_FAIL');
     }
     users[index][field] = value;
     const result = await _saveData(users, 'account.json');
     if (isEmpty(result) || !isEmpty(result.errors)) {
       return response(400, 'ERROR', null, result.errors);
     }
-    return result;
+    return response(200, 'UPDATED');
   }
 
   public async updateInfo(body: any, req: any, field: string) {

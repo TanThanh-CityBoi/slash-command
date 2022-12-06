@@ -17,9 +17,13 @@ export class UserController {
     const USER_CMD = COMMANDS._USER;
     const { command, text } = body;
     const firstParam = text.split(' ')[0] || 'NULL_PARAM';
+    console.log(
+      '🚀 ~ file: user.controller.ts:20 ~ UserController ~ getList ~ firstParam',
+      firstParam,
+    );
     if (
       !isDeepStrictEqual(command, USER_CMD.command) ||
-      !Object.values(USER_CMD.params).includes(firstParam)
+      !USER_CMD.params.includes(firstParam)
     ) {
       return response(400, 'COMMAND_NOT_FOUND');
     }
