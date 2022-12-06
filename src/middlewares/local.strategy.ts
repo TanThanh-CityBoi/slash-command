@@ -1,37 +1,29 @@
 import { Strategy } from 'passport-local';
 import { PassportStrategy } from '@nestjs/passport';
-import { Injectable } from '@nestjs/common';
-import { getSlackSignature, hashSignature } from 'src/utils';
-import { isEqual } from 'lodash';
-import { RequestContext } from 'nestjs-request-context';
+import { Injectable, RawBodyRequest } from '@nestjs/common';
+import { verifySignature } from 'src/utils';
+import { isEmpty } from 'lodash';
+import { response } from 'src/utils';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
-  constructor() {
+  constructor(private readonly userService: UserService) {
     super({
       usernameField: 'user_id',
       passwordField: 'api_app_id',
+      passReqToCallback: true,
     });
   }
-  async validate(user_id: string, api_app_id: string): Promise<any> {
-    const req: any = RequestContext.currentContext.req;
-    const slackSignature = getSlackSignature(req);
-    const payload = req.body;
-    if (api_app_id !== process.env.APP_ID) {
-      return {
-        status: 400,
-        message: 'UNAUTHORIZE_SERVER',
-      };
+  async validate(req: RawBodyRequest<Request>, user_id: string): Promise<any> {
+    const { rawBody } = req;
+    if (!verifySignature(req, rawBody)) {
+      return response(401, 'UNAUTHORIZED_APP');
     }
-    const requestTime = req.headers['x-slack-request-timestamp'];
-    const secretKey = process.env.SECRET_KEY;
-    const hashPayload = await hashSignature(requestTime, payload, secretKey);
-    if (!isEqual(slackSignature, hashPayload)) {
-      return {
-        status: 400,
-        message: 'UNAUTHORIZE_SERVER',
-      };
+    const user = await this.userService.findById(user_id);
+    if (isEmpty(user)) {
+      return response(401, 'UNAUTHORIZED_USER');
     }
-    return { user_id, api_app_id };
+    return response(200, 'OK', user);
   }
 }

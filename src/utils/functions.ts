@@ -1,20 +1,73 @@
-import { sha256 } from 'js-sha256';
+import * as crypto from 'crypto';
+import * as fs from 'fs/promises';
+import { join } from 'path';
 
-const getSlackSignature = (req: any) => {
-  return req.headers['x-slack-signature'];
+const verifySignature = (req, body) => {
+  const signature = req.headers['x-slack-signature'];
+  const timestamp = req.headers['x-slack-request-timestamp'];
+  const hmac = crypto.createHmac('sha256', process.env.SECRET_KEY);
+  const [version, hash] = signature.split('=');
+  hmac.update(`${version}:${timestamp}:${body}`);
+  return hmac.digest('hex') === hash;
 };
 
-const hashSignature = (requestTime, payload, signature) => {
-  return 'v0=' + sha256.hmac(signature, `v0:${requestTime}:${payload}`);
+const parseInfo = (rawInfo: string) => {
+  let [userId, userName] = rawInfo.split('|');
+  userId = userId.replace('<', '').replace('@', '').trim();
+  userName = userName.replace('>', '').trim();
+  return [userId, userName];
 };
 
-const response = (status, message, data = null, error = null) => {
+const generateRequestId = () => {
+  const time = Date.now().toString();
+  const randomNumbers = Math.floor(Math.random() * (1000 - 100) + 100);
+  return time + randomNumbers.toString();
+};
+
+const response = (status, message, data = null, errors = null) => {
   return {
     status,
     message,
     data,
-    error,
+    errors,
   };
 };
 
-export { getSlackSignature, hashSignature, response };
+const _getData = async (fileName: string): Promise<any> => {
+  let objData;
+  await fs
+    .readFile(join(__dirname, '../../data', fileName), 'utf-8')
+    .then((data) => {
+      objData = JSON.parse(data.toString());
+    })
+    .catch((error) => {
+      return { errors: error };
+    });
+  return objData;
+};
+
+const _saveData = async (data: any, fileName): Promise<any> => {
+  try {
+    await fs.writeFile(
+      join(__dirname, '../../data', fileName),
+      JSON.stringify(data),
+    );
+    return { message: 'CREATE_OK' };
+  } catch (error) {
+    return { errors: error };
+  }
+};
+
+const isCorrectUser = (userInfo: string): boolean => {
+  return /<@\w+[|]\w+>/.test(userInfo);
+};
+
+export {
+  response,
+  verifySignature,
+  parseInfo,
+  _getData,
+  generateRequestId,
+  _saveData,
+  isCorrectUser,
+};

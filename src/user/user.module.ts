@@ -3,9 +3,8 @@ import { PassportModule } from '@nestjs/passport';
 import { LocalStrategy } from 'src/middlewares';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
-import { RequestContextModule } from 'nestjs-request-context';
 @Module({
-  imports: [PassportModule, RequestContextModule],
+  imports: [PassportModule],
   controllers: [UserController],
   providers: [UserService, LocalStrategy],
 })

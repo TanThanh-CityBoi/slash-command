@@ -1,12 +1,18 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { SlashAccount } from 'src/entities';
 import { UserController } from './user/user.controller';
 import { UserService } from './user/user.service';
 import { ConfigModule } from '@nestjs/config';
 import { UserModule } from './user/user.module';
+import { ExpressParser } from '@ogma/platform-express';
+import {
+  LocalAuthGuard,
+  TntInterceptor,
+  TransformInterceptor,
+} from './middlewares';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { OgmaModule } from '@ogma/nestjs-module';
 import { RequestContextModule } from 'nestjs-request-context';
 
 @Module({
@@ -14,22 +20,38 @@ import { RequestContextModule } from 'nestjs-request-context';
     ConfigModule.forRoot({
       envFilePath: '.env',
     }),
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: process.env.MYSQL_HOST,
-      port: parseInt(process.env.MYSQL_PORT, 10) || 3306,
-      entities: ['dist/**/**.entity{.ts,.js}'],
-      username: process.env.MYSQL_USERNAME,
-      password: process.env.MYSQL_PASSWORD,
-      database: process.env.DB_NAME,
-      synchronize: false,
-      timezone: process.env.TIME_ZONE,
+    OgmaModule.forRoot({
+      service: {
+        color: false,
+        json: false,
+        application: process.env['npm_package_name'],
+      },
+      interceptor: {
+        rpc: false,
+        http: ExpressParser,
+        ws: false,
+        gql: false,
+      },
     }),
-    TypeOrmModule.forFeature([SlashAccount]),
-    UserModule,
     RequestContextModule,
+    UserModule,
   ],
   controllers: [AppController, UserController],
-  providers: [AppService, UserService],
+  providers: [
+    AppService,
+    UserService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: TntInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: TransformInterceptor,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: LocalAuthGuard,
+    },
+  ],
 })
 export class AppModule {}
