@@ -32,7 +32,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
         status: statusCode,
         message: typeof res === 'string' ? res : res.message,
       });
-      response.status(statusCode).json(reponsePayload);
+      response.status(200).json(reponsePayload);
       return;
     }
     if (exception instanceof Error) {
@@ -40,6 +40,6 @@ export class AllExceptionsFilter implements ExceptionFilter {
         errors: exception.stack,
       });
     }
-    response.status(statusCode).json(reponsePayload);
+    response.status(200).json(reponsePayload);
   }
 }
