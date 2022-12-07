@@ -7,7 +7,7 @@ export class TntController {
   constructor(private readonly service: TntService) {}
 
   @Post('')
-  public getWorkspaceInfo(@Body() body, @Request() req) {
+  public tntCommand(@Body() body, @Request() req) {
     if (req.user.status != 200) {
       return req.user;
     }
@@ -18,8 +18,9 @@ export class TntController {
 
     //switch param
     const _getResult = {
-      //list user
-      NULL_PARAM: () => this.service.getWorkspaceInfo(body),
+      NULL_PARAM: () => this.service.getHelp(),
+      //work space info
+      '-w': () => this.service.getWorkspaceInfo(body),
     };
     return _getResult[firstParam]();
   }

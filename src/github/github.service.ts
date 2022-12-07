@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Octokit } from 'octokit';
-import { getTeamDomain, _getData } from 'src/utils';
+import { COMMANDS, getTeamDomain, _getData } from 'src/utils';
 import { isEmpty } from 'lodash';
 import { AccountDTO } from 'src/dto';
 
@@ -10,6 +10,11 @@ export class GithubService {
     const accounts = await _getData('account.json');
     if (isEmpty(accounts) || !isEmpty(accounts.errors)) return null;
     return accounts.find((account) => account.userId === userId);
+  }
+
+  public async getHelp() {
+    const githubCommand = COMMANDS.find((x) => x.cmd == '/git');
+    return githubCommand;
   }
 
   public async getListBranch(body: any) {

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { AccountDTO } from 'src/dto/account.dto';
 import {
+  COMMANDS,
   isCorrectUser,
   parseInfo,
   response,
@@ -15,6 +16,11 @@ export class UserService {
     const accounts = await _getData('account.json');
     if (isEmpty(accounts) || !isEmpty(accounts.errors)) return null;
     return accounts.find((account) => account.userId === userId);
+  }
+
+  public async getHelp() {
+    const userCommands = COMMANDS.find((x) => x.cmd == '/user');
+    return userCommands;
   }
 
   public async getList() {

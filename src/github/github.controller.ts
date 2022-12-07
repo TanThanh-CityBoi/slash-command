@@ -1,5 +1,5 @@
 import { Body, Request, Controller, Post } from '@nestjs/common';
-import { validateCommand, response } from 'src/utils';
+import { validateCommand } from 'src/utils';
 import { GithubService } from './github.service';
 
 @Controller()
@@ -17,10 +17,7 @@ export class GithubController {
 
     //switch param
     const _getResult = {
-      NULL_PARAM: () => {
-        return response(400, 'COMMAND_NOT_FOUND');
-      },
-
+      NULL_PARAM: () => this.service.getHelp(),
       //list branch
       '-lb': () => this.service.getListBranch(body),
     };

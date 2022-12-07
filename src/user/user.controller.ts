@@ -7,7 +7,7 @@ export class UserController {
   constructor(private readonly service: UserService) {}
 
   @Post('')
-  public async manageUser(@Body() body, @Request() req) {
+  public async userCommand(@Body() body, @Request() req) {
     if (req.user.status != 200) {
       return req.user;
     }
@@ -17,8 +17,9 @@ export class UserController {
 
     //switch param
     const _getResult = {
+      NULL_PARAM: () => this.service.getHelp(),
+
       //list user
-      NULL_PARAM: () => this.service.getList(),
       list: () => this.service.getList(),
       '-l': () => this.service.getList(),
 
