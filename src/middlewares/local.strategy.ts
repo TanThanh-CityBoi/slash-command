@@ -20,10 +20,10 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     user_id: string,
     team_domain: string,
   ): Promise<any> {
-    // const { rawBody } = req;
-    // if (!verifySignature(req, rawBody, team_domain)) {
-    //   return response(401, 'UNAUTHORIZED_APP');
-    // }
+    const { rawBody } = req;
+    if (!verifySignature(req, rawBody, team_domain)) {
+      return response(401, 'UNAUTHORIZED_APP');
+    }
     const user = await this.userService.findById(user_id);
     if (isEmpty(user)) {
       return response(401, 'UNAUTHORIZED_USER');
