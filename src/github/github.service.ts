@@ -16,7 +16,7 @@ export class GithubService {
     return COMMANDS._GITHUB;
   }
 
-  public async getListBranch(body: any) {
+  public async getBranches(body: any) {
     const { user_id, text } = body;
     const user = await this.findUserById(user_id);
     if (isEmpty(user.githubToken)) {
@@ -42,18 +42,15 @@ export class GithubService {
     }
   }
 
-  public async createBranch(body: any) {
+  public async createRef(body: any) {
     const { user_id, text } = body;
     const user = await this.findUserById(user_id);
     if (isEmpty(user.githubToken)) {
       return response(401, 'GITHUB_TOKEN_NULL');
     }
-    const params = text.split(' ');
-    const repo = params[3];
+    const [newBranch, oldBranch, repo] = text.split(' ').slice(1);
     const teamDomain = getTeamDomain(body);
     const owner = process.env[`GH_OWNER_${teamDomain}`];
-    const newBranch = params[1];
-    const oldBranch = params[2];
     const octokit = new Octokit({
       auth: user.githubToken,
     });
@@ -83,6 +80,37 @@ export class GithubService {
       return result?.data;
     } catch (err) {
       return response(400, 'CREATE_FAIL', null, err);
+    }
+  }
+
+  public async deleteRef(body: any) {
+    const { user_id, text } = body;
+    const user = await this.findUserById(user_id);
+    if (isEmpty(user.githubToken)) {
+      return response(401, 'GITHUB_TOKEN_NULL');
+    }
+    const [branch, repo] = text.split(' ').slice(1);
+    if (['master', 'main', 'staging', 'aws-prod', 'dev'].includes(branch)) {
+      return response(400, 'CANNOT_DELETE_DEFAULT_BRANCH');
+    }
+    const teamDomain = getTeamDomain(body);
+    const owner = process.env[`GH_OWNER_${teamDomain}`];
+    const octokit = new Octokit({
+      auth: user.githubToken,
+    });
+
+    try {
+      const result = await octokit.request(
+        'DELETE /repos/{owner}/{repo}/git/refs/{ref}',
+        {
+          owner,
+          repo,
+          ref: `heads/${branch}`,
+        },
+      );
+      return response(result.data, 'DELETED');
+    } catch (err) {
+      return response(400, 'DELETE_FAIL', null, err);
     }
   }
 }

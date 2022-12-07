@@ -19,8 +19,11 @@ export class GithubController {
     const _getResult = {
       NULL_PARAM: () => this.service.getHelp(),
       //list branch
-      '-lb': () => this.service.getListBranch(body),
-      '-b': () => this.service.createBranch(body),
+      '-lb': () => this.service.getBranches(body),
+      // create branch
+      '-b': () => this.service.createRef(body),
+      // delete branch
+      '-d': () => this.service.deleteRef(body),
     };
     return _getResult[firstParam]();
   }
