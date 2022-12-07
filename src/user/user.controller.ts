@@ -12,7 +12,7 @@ export class UserController {
       return req.user;
     }
     //validate command
-    const firstParam = validateCommand(body, req.user.data);
+    const firstParam = validateCommand(body, req.user.data, 'USER');
     if (firstParam?.status == 400) return firstParam;
 
     //switch param

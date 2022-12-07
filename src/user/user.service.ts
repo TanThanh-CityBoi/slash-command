@@ -19,8 +19,7 @@ export class UserService {
   }
 
   public async getHelp() {
-    const userCommands = COMMANDS.filter((x) => x.cmd == '/user');
-    return userCommands;
+    return COMMANDS._USER;
   }
 
   public async getList() {

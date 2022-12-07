@@ -13,7 +13,7 @@ export class TntController {
     }
 
     //validate command
-    const firstParam = validateCommand(body, req.user.data);
+    const firstParam = validateCommand(body, req.user.data, 'TNT');
     if (firstParam?.status == 400) return firstParam;
 
     //switch param

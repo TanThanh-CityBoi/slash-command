@@ -2,7 +2,7 @@ import { Body, Request, Controller, Post } from '@nestjs/common';
 import { validateCommand } from 'src/utils';
 import { GithubService } from './github.service';
 
-@Controller()
+@Controller('github')
 export class GithubController {
   constructor(private readonly service: GithubService) {}
 
@@ -12,7 +12,7 @@ export class GithubController {
       return req.user;
     }
     //validate command
-    const firstParam = validateCommand(body, req.user.data);
+    const firstParam = validateCommand(body, req.user.data, 'GITHUB');
     if (firstParam?.status == 400) return firstParam;
 
     //switch param

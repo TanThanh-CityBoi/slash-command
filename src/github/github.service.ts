@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Octokit } from 'octokit';
-import { COMMANDS, getTeamDomain, _getData } from 'src/utils';
+import { COMMANDS, getTeamDomain, _getData, response } from 'src/utils';
 import { isEmpty } from 'lodash';
 import { AccountDTO } from 'src/dto';
 
@@ -13,26 +13,25 @@ export class GithubService {
   }
 
   public async getHelp() {
-    const githubCommand = COMMANDS.filter((x) => x.cmd == '/git');
-    return githubCommand;
+    return COMMANDS._GITHUB;
   }
 
   public async getListBranch(body: any) {
-    // const {text } = body;
-
+    const { user_id, text } = body;
+    const user = await this.findUserById(user_id);
+    if (isEmpty(user.githubToken)) {
+      return response(401, 'GITHUB_TOKEN_NULL');
+    }
+    const repo = text.split(' ')[1];
     const octokit = new Octokit({
-      auth: 'YOUR-TOKEN',
+      auth: user.githubToken,
     });
-
     const teamDomain = getTeamDomain(body);
     const owner = process.env[`GH_OWNER_${teamDomain}`];
-
-    await octokit.request(
-      `GET /repos/${owner}/{repo}/branches{?protected,per_page,page}`,
-      {
-        owner: 'OWNER',
-        repo: 'REPO',
-      },
-    );
+    const result = await octokit.request('GET /repos/{owner}/{repo}/branches', {
+      owner: owner,
+      repo: repo,
+    });
+    return result?.data;
   }
 }

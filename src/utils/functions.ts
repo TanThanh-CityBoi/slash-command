@@ -71,10 +71,10 @@ const isCorrectUser = (userInfo: string): boolean => {
   return /<@\w+[|]\w+>/.test(userInfo);
 };
 
-const validateCommand = (body: any, userInfo: AccountDTO) => {
+const validateCommand = (body: any, userInfo: AccountDTO, type: string) => {
   const { command, text } = body;
   const params = text.split(' ');
-  const existedCommand = COMMANDS.find(
+  const existedCommand = COMMANDS[`_${type}`].find(
     (x) =>
       x.cmd == command &&
       x.prm.length == params.length &&

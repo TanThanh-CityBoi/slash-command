@@ -4,8 +4,7 @@ import { COMMANDS } from 'src/utils';
 @Injectable()
 export class TntService {
   public async getHelp() {
-    const tntCommands = COMMANDS.filter((x) => x.cmd == '/tnt');
-    return tntCommands;
+    return COMMANDS._TNT;
   }
 
   public getWorkspaceInfo(body: any) {
