@@ -1,7 +1,9 @@
 import * as crypto from 'crypto';
 import * as fs from 'fs/promises';
 import { join } from 'path';
-import { isEqual } from 'lodash';
+import { isEmpty } from 'lodash';
+import { COMMANDS } from './constant';
+import { AccountDTO } from 'src/dto';
 
 const verifySignature = (req, rawBody, teamDomain) => {
   const signature = req.headers['x-slack-signature'];
@@ -69,14 +71,22 @@ const isCorrectUser = (userInfo: string): boolean => {
   return /<@\w+[|]\w+>/.test(userInfo);
 };
 
-const getFirstParam = (body: any, commands: any) => {
+const validateCommand = (body: any, userInfo: AccountDTO) => {
   const { command, text } = body;
-  const firstParam = text.split(' ')[0] || 'NULL_PARAM';
-  // check parammmm????
-  return isEqual(command, commands.command) &&
-    commands.params.includes(firstParam)
-    ? firstParam
-    : null;
+  const params = text.split(' ');
+  const existedCommand = COMMANDS.find(
+    (x) =>
+      x.cmd == command &&
+      x.prm.length == params.length &&
+      x.prm[0] == params[0],
+  );
+  if (isEmpty(existedCommand)) {
+    return response(400, 'COMMAND_NOT_FOUND');
+  }
+  if (userInfo.role !== 'ADMIN' && existedCommand.role !== userInfo.role) {
+    return response(400, 'PERMISSION_DENIED');
+  }
+  return params[0] || 'NULL_PARAM';
 };
 
 export {
@@ -87,6 +97,6 @@ export {
   generateRequestId,
   _saveData,
   isCorrectUser,
-  getFirstParam,
+  validateCommand,
   getTeamDomain,
 };

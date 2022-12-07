@@ -1,7 +1,6 @@
 import { Body, Request, Controller, Post } from '@nestjs/common';
-import { COMMANDS, getFirstParam, response } from 'src/utils';
+import { validateCommand } from 'src/utils';
 import { TntService } from './tnt.service';
-import { isEmpty } from 'lodash';
 
 @Controller('tnt')
 export class TntController {
@@ -13,11 +12,9 @@ export class TntController {
       return req.user;
     }
 
-    //check existed param
-    const firstParam = getFirstParam(body, COMMANDS._TNT);
-    if (isEmpty(firstParam)) {
-      return response(400, 'COMMAND_NOT_FOUND');
-    }
+    //validate command
+    const firstParam = validateCommand(body, req.user.data);
+    if (firstParam?.status == 400) return firstParam;
 
     //switch param
     const _getResult = {

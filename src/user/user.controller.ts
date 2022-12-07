@@ -1,6 +1,5 @@
 import { Body, Controller, Post, Request } from '@nestjs/common';
-import { COMMANDS, getFirstParam, response } from 'src/utils';
-import { isEmpty } from 'lodash';
+import { validateCommand } from 'src/utils';
 import { UserService } from './user.service';
 
 @Controller('user')
@@ -12,26 +11,24 @@ export class UserController {
     if (req.user.status != 200) {
       return req.user;
     }
-    //check existed param
-    const firstParam = getFirstParam(body, COMMANDS._USER);
-    if (isEmpty(firstParam)) {
-      return response(400, 'COMMAND_NOT_FOUND');
-    }
+    //validate command
+    const firstParam = validateCommand(body, req.user.data);
+    if (firstParam?.status == 400) return firstParam;
 
     //switch param
     const _getResult = {
       //list user
-      NULL_PARAM: () => this.service.getList(req),
-      list: () => this.service.getList(req),
-      '-l': () => this.service.getList(req),
+      NULL_PARAM: () => this.service.getList(),
+      list: () => this.service.getList(),
+      '-l': () => this.service.getList(),
 
       // add user
       add: () => this.service.createAccount(body, req),
       '-a': () => this.service.createAccount(body, req),
 
       // remove user
-      delete: () => this.service.deleteAccount(body, req),
-      '-d': () => this.service.deleteAccount(body, req),
+      delete: () => this.service.deleteAccount(body),
+      '-d': () => this.service.deleteAccount(body),
 
       // update info
       token: () => this.service.updateInfo(body, req, 'githubToken'),

@@ -1,41 +1,22 @@
-const COMMANDS = {
-  _USER: {
-    command: '/user',
-    params: [
-      'NULL_PARAM',
-      //
-      'list',
-      '-l',
-      //
-      'add',
-      '-a',
-      //
-      'delete',
-      '-d',
-      //
-      'token',
-      'role',
-    ],
+const COMMANDS = [
+  // user
+  { cmd: '/user', prm: [''], role: 'ADMIN' },
+  { cmd: '/user', prm: ['list'], role: 'USER' },
+  { cmd: '/user', prm: ['-l'], role: 'USER' },
+  { cmd: '/user', prm: ['add', '<@user_id|user_name>'], role: 'ADMIN' },
+  { cmd: '/user', prm: ['-a', '<@user_id|user_name>'], role: 'ADMIN' },
+  { cmd: '/user', prm: ['delete', '<@user_id|user_name>'], role: 'ADMIN' },
+  { cmd: '/user', prm: ['-d', '<@user_id|user_name>'], role: 'ADMIN' },
+  { cmd: '/user', prm: ['token', '<token>'], role: 'USER' },
+  {
+    cmd: '/user',
+    prm: ['token', '<token>', '<@user_id|user_name>'],
+    role: 'ADMIN',
   },
-  _GITHUB: {
-    command: '/git',
-    params: [
-      'NULL_PARAM',
-      //
-      'list',
-      '-l',
-    ],
-  },
-  _TNT: {
-    command: '/tnt',
-    params: ['NULL_PARAM'],
-  },
-  _ABC: [
-    { cmd: '/abc', prm: ['NULL_PARAM'] },
-    { cmd: '/abc', prm: ['-d', 'rawInfo'] },
-    { cmd: '/abc', prm: ['-l'] },
-  ],
-};
+  { cmd: '/user', prm: ['role', '<role>'], role: 'ADMIN' },
+
+  //github
+];
 
 const ROLE = {
   ADMIN: 'ADMIN',
