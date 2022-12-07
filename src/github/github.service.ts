@@ -32,6 +32,9 @@ export class GithubService {
       owner: owner,
       repo: repo,
     });
+    if (result?.status != 200) {
+      return response(result.status, 'REQUEST_FAIL', null, result);
+    }
     return result?.data;
   }
 }
