@@ -20,6 +20,7 @@ export class GithubController {
       NULL_PARAM: () => this.service.getHelp(),
       //list branch
       '-lb': () => this.service.getListBranch(body),
+      '-b': () => this.service.createBranch(body),
     };
     return _getResult[firstParam]();
   }
