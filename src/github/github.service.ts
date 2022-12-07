@@ -113,4 +113,62 @@ export class GithubService {
       return response(400, 'DELETE_FAIL', null, err);
     }
   }
+
+  public async createPullRequest(body: any) {
+    const { user_id, text } = body;
+    const user = await this.findUserById(user_id);
+    if (isEmpty(user.githubToken)) {
+      return response(401, 'GITHUB_TOKEN_NULL');
+    }
+    const [fromBranch, toBranch, repo] = text.split(' ').slice(1);
+    const teamDomain = getTeamDomain(body);
+    const owner = process.env[`GH_OWNER_${teamDomain}`];
+    const octokit = new Octokit({
+      auth: user.githubToken,
+    });
+
+    try {
+      const result = await octokit.request('POST /repos/{owner}/{repo}/pulls', {
+        owner,
+        repo,
+        title: `Branch: ${fromBranch}`,
+        body: 'Please pull these awesome changes in!',
+        head: fromBranch,
+        base: toBranch,
+      });
+      return result?.data;
+    } catch (err) {
+      return response(400, 'CREATE_FAIL', null, err);
+    }
+  }
+
+  public async mergePullRequest(body: any) {
+    const { user_id, text } = body;
+    const user = await this.findUserById(user_id);
+    if (isEmpty(user.githubToken)) {
+      return response(401, 'GITHUB_TOKEN_NULL');
+    }
+    const [pullNumber, repo] = text.split(' ').slice(1);
+    const teamDomain = getTeamDomain(body);
+    const owner = process.env[`GH_OWNER_${teamDomain}`];
+    const octokit = new Octokit({
+      auth: user.githubToken,
+    });
+
+    try {
+      const result = await octokit.request(
+        'PUT /repos/{owner}/{repo}/pulls/{pull_number}/merge',
+        {
+          owner,
+          repo,
+          pull_number: pullNumber,
+          commit_title: 'Expand enum',
+          commit_message: 'Add a new value to the merge_method enum',
+        },
+      );
+      return result;
+    } catch (err) {
+      return response(400, 'MERGE_FAIL', null, err);
+    }
+  }
 }

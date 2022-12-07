@@ -24,6 +24,10 @@ export class GithubController {
       '-b': () => this.service.createRef(body),
       // delete branch
       '-d': () => this.service.deleteRef(body),
+      //create pull request
+      '-p': () => this.service.createPullRequest(body),
+      //merge pull request
+      '-m': () => this.service.mergePullRequest(body),
     };
     return _getResult[firstParam]();
   }

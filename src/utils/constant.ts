@@ -35,6 +35,16 @@ const COMMANDS = {
       role: ROLE.USER,
     },
     { cmd: '/git', prm: ['-d', '<branch>', '<repo>'], role: ROLE.USER },
+    {
+      cmd: '/git',
+      prm: ['-p', '<from_branch>', '<to_branch>', '<repo>'],
+      role: ROLE.USER,
+    },
+    {
+      cmd: '/git',
+      prm: ['-m', '<pull_number>', '<repo>'],
+      role: ROLE.USER,
+    },
   ],
 };
 
