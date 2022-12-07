@@ -13,7 +13,7 @@ export class GithubService {
   }
 
   public async getHelp() {
-    const githubCommand = COMMANDS.find((x) => x.cmd == '/git');
+    const githubCommand = COMMANDS.filter((x) => x.cmd == '/git');
     return githubCommand;
   }
 

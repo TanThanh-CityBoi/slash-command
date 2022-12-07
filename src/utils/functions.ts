@@ -2,7 +2,7 @@ import * as crypto from 'crypto';
 import * as fs from 'fs/promises';
 import { join } from 'path';
 import { isEmpty } from 'lodash';
-import { COMMANDS } from './constant';
+import { COMMANDS, ROLE } from './constant';
 import { AccountDTO } from 'src/dto';
 
 const verifySignature = (req, rawBody, teamDomain) => {
@@ -83,7 +83,7 @@ const validateCommand = (body: any, userInfo: AccountDTO) => {
   if (isEmpty(existedCommand)) {
     return response(400, 'COMMAND_NOT_FOUND');
   }
-  if (userInfo.role !== 'ADMIN' && existedCommand.role !== userInfo.role) {
+  if (userInfo.role !== ROLE.ADMIN && existedCommand.role !== userInfo.role) {
     return response(400, 'PERMISSION_DENIED');
   }
   return params[0] || 'NULL_PARAM';

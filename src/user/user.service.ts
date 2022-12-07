@@ -19,7 +19,7 @@ export class UserService {
   }
 
   public async getHelp() {
-    const userCommands = COMMANDS.find((x) => x.cmd == '/user');
+    const userCommands = COMMANDS.filter((x) => x.cmd == '/user');
     return userCommands;
   }
 
