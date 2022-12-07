@@ -1,5 +1,5 @@
 import { Body, Controller, Post, Request } from '@nestjs/common';
-import { validateCommand } from 'src/utils';
+import { response, validateCommand } from 'src/utils';
 import { UserService } from './user.service';
 
 @Controller('user')
@@ -12,29 +12,32 @@ export class UserController {
       return req.user;
     }
     //validate command
-    const firstParam = validateCommand(body, req.user.data, 'USER');
-    if (firstParam?.status == 400) return firstParam;
-
+    const [isValid, message, command] = validateCommand(
+      body,
+      req.user.data,
+      'USER',
+    );
+    if (!isValid) return response(400, message);
     //switch param
     const _getResult = {
       NULL_PARAM: () => this.service.getHelp(),
 
       //list user
       list: () => this.service.getList(),
-      '-l': () => this.service.getList(),
+      l: () => this.service.getList(),
 
       // add user
       add: () => this.service.createAccount(body, req),
-      '-a': () => this.service.createAccount(body, req),
+      a: () => this.service.createAccount(body, req),
 
       // remove user
       delete: () => this.service.deleteAccount(body),
-      '-d': () => this.service.deleteAccount(body),
+      d: () => this.service.deleteAccount(body),
 
       // update info
       token: () => this.service.updateInfo(body, req, 'githubToken'),
       role: () => this.service.updateInfo(body, req, 'role'),
     };
-    return _getResult[firstParam]();
+    return _getResult[command]();
   }
 }

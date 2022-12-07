@@ -1,5 +1,6 @@
 import * as crypto from 'crypto';
 import * as fs from 'fs/promises';
+import * as fsCre from 'fs';
 import { join } from 'path';
 import { isEmpty } from 'lodash';
 import { COMMANDS, ROLE } from './constant';
@@ -42,10 +43,10 @@ const response = (status, message, data = null, errors = null) => {
   };
 };
 
-const _getData = async (fileName: string): Promise<any> => {
+const getData = async (fileName: string): Promise<any> => {
   let objData;
   await fs
-    .readFile(join(__dirname, '../../data', fileName), 'utf-8')
+    .readFile(join(process.cwd(), '/data', fileName), 'utf-8')
     .then((data) => {
       objData = JSON.parse(data.toString());
     })
@@ -55,10 +56,10 @@ const _getData = async (fileName: string): Promise<any> => {
   return objData;
 };
 
-const _saveData = async (data: any, fileName): Promise<any> => {
+const saveData = async (data: any, fileName): Promise<any> => {
   try {
     await fs.writeFile(
-      join(__dirname, '../../data', fileName),
+      join(process.cwd(), '/data', fileName),
       JSON.stringify(data),
     );
     return { message: 'CREATE_OK' };
@@ -81,22 +82,46 @@ const validateCommand = (body: any, userInfo: AccountDTO, type: string) => {
       x.prm[0] == params[0],
   );
   if (isEmpty(existedCommand)) {
-    return response(400, 'COMMAND_NOT_FOUND');
+    return [false, 'COMMAND_NOT_FOUND'];
   }
   if (userInfo.role !== ROLE.ADMIN && existedCommand.role !== userInfo.role) {
-    return response(400, 'PERMISSION_DENIED');
+    return [false, 'PERMISSION_DENIED'];
   }
-  return params[0] || 'NULL_PARAM';
+  return [true, 'SUCCESSFULLY', params[0] || 'NULL_PARAM'];
+};
+
+const createRootUser = async () => {
+  const _createRoot = () => {
+    const rootUser = new AccountDTO();
+    rootUser.userId = process.env.USER_ID;
+    rootUser.userName = process.env.USER_NAME;
+    rootUser.githubToken = '';
+    rootUser.role = ROLE.ADMIN;
+    rootUser.createdAt = new Date();
+    rootUser.createdBy = '';
+    const users = [rootUser];
+    saveData(users, 'account.json');
+  };
+  try {
+    await fsCre.openSync(join(process.cwd(), '/data', 'account.json'), 'wx');
+    _createRoot();
+    console.log('=== File is created. =====');
+  } catch (error) {
+    const data = getData('account.json');
+    if (isEmpty(data)) _createRoot();
+    console.log(error);
+  }
 };
 
 export {
   response,
   verifySignature,
   parseInfo,
-  _getData,
+  getData,
   generateRequestId,
-  _saveData,
+  saveData,
   isCorrectUser,
   validateCommand,
   getTeamDomain,
+  createRootUser,
 };

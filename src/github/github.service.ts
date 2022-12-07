@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { Octokit } from 'octokit';
-import { COMMANDS, getTeamDomain, _getData, response } from 'src/utils';
+import { COMMANDS, getTeamDomain, getData, response } from 'src/utils';
 import { isEmpty } from 'lodash';
 import { AccountDTO } from 'src/dto';
 
 @Injectable()
 export class GithubService {
   public async findUserById(userId: string): Promise<AccountDTO | null> {
-    const accounts = await _getData('account.json');
+    const accounts = await getData('account.json');
     if (isEmpty(accounts) || !isEmpty(accounts.errors)) return null;
     return accounts.find((account) => account.userId === userId);
   }

@@ -1,5 +1,5 @@
 import { Body, Request, Controller, Post } from '@nestjs/common';
-import { validateCommand } from 'src/utils';
+import { response, validateCommand } from 'src/utils';
 import { GithubService } from './github.service';
 
 @Controller('github')
@@ -12,23 +12,27 @@ export class GithubController {
       return req.user;
     }
     //validate command
-    const firstParam = validateCommand(body, req.user.data, 'GITHUB');
-    if (firstParam?.status == 400) return firstParam;
+    const [isValid, message, command] = validateCommand(
+      body,
+      req.user.data,
+      'GITHUB',
+    );
+    if (!isValid) return response(400, message);
 
     //switch param
     const _getResult = {
       NULL_PARAM: () => this.service.getHelp(),
       //list branch
-      '-lb': () => this.service.getBranches(body),
+      lb: () => this.service.getBranches(body),
       // create branch
-      '-b': () => this.service.createRef(body),
+      b: () => this.service.createRef(body),
       // delete branch
-      '-d': () => this.service.deleteRef(body),
+      d: () => this.service.deleteRef(body),
       //create pull request
-      '-p': () => this.service.createPullRequest(body),
+      p: () => this.service.createPullRequest(body),
       //merge pull request
-      '-m': () => this.service.mergePullRequest(body),
+      m: () => this.service.mergePullRequest(body),
     };
-    return _getResult[firstParam]();
+    return _getResult[command]();
   }
 }

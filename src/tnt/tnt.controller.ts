@@ -1,5 +1,5 @@
 import { Body, Request, Controller, Post } from '@nestjs/common';
-import { validateCommand } from 'src/utils';
+import { response, validateCommand } from 'src/utils';
 import { TntService } from './tnt.service';
 
 @Controller('tnt')
@@ -13,15 +13,19 @@ export class TntController {
     }
 
     //validate command
-    const firstParam = validateCommand(body, req.user.data, 'TNT');
-    if (firstParam?.status == 400) return firstParam;
+    const [isValid, message, command] = validateCommand(
+      body,
+      req.user.data,
+      'TNT',
+    );
+    if (!isValid) return response(400, message);
 
     //switch param
     const _getResult = {
       NULL_PARAM: () => this.service.getHelp(),
       //work space info
-      '-w': () => this.service.getWorkspaceInfo(body),
+      w: () => this.service.getWorkspaceInfo(body),
     };
-    return _getResult[firstParam]();
+    return _getResult[command]();
   }
 }
