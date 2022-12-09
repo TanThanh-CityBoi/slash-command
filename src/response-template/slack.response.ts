@@ -1,4 +1,4 @@
-import { isEmpty, isObject, isArray, isString } from 'lodash';
+import { isEmpty, isObject, isArray } from 'lodash';
 
 export function slackResponse(dataRes: any) {
   const { req, body, response } = dataRes;
@@ -30,23 +30,13 @@ export function slackResponse(dataRes: any) {
       `*Errors*: \`${JSON.stringify(errors) || null}\``;
   }
 
-  if (!isEmpty(data)) {
-    if (isObject(data)) {
-      for (const [key, value] of Object.entries(data)) {
-        bodyContent += `*${key}*: ${value}`;
-      }
+  if (!isEmpty(data) && isObject(data)) {
+    const isArr = isArray(data);
+    for (const [key, value] of Object.entries(data)) {
+      bodyContent += `*${!isArr ? key : '•'}*: ${value}`;
     }
-
-    if (isArray(data)) {
-      const result = data.map((val) => {
-        `*${val} \n`;
-      });
-      bodyContent += result;
-    }
-
-    if (isString(data)) {
-      bodyContent += data;
-    }
+  } else {
+    bodyContent += data;
   }
 
   const bodyTemplate = {
