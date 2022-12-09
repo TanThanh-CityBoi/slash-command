@@ -27,7 +27,9 @@ export class UserService {
     if (isEmpty(accounts) || !isEmpty(accounts.errors)) {
       return response(404, 'NOT_FOUND', null, accounts.errors);
     }
-    return accounts;
+    return accounts.map((val) => {
+      `<@${val.userId}|${val.userName}>  ${val.role}`;
+    });
   }
 
   public async createAccount(body: any, req: any) {
