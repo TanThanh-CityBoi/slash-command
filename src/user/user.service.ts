@@ -7,6 +7,7 @@ import {
   response,
   getData,
   saveData,
+  ROLE,
 } from 'src/utils';
 import { isEmpty } from 'lodash';
 import * as moment from 'moment';
@@ -53,7 +54,7 @@ export class UserService {
     const newUser = new AccountDTO();
     newUser.userId = userId;
     newUser.userName = userName;
-    newUser.role = 'USER';
+    newUser.role = ROLE.USER;
     newUser.githubToken = '';
     newUser.createdAt = moment(new Date()).format('YYYY-MM-DD HH:mm:ss');
     newUser.createdBy = user.userId;
