@@ -107,7 +107,7 @@ const createRootUser = async () => {
     _createRoot();
     console.log('=== File is created. =====');
   } catch (error) {
-    const data = getData('account.json');
+    const data = await getData('account.json');
     if (isEmpty(data)) _createRoot();
     console.log(error);
   }
