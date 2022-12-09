@@ -21,7 +21,7 @@ export class UserService {
 
   public async getHelp() {
     const result = COMMANDS._USER.map((val) => {
-      return `${val.cmd} ${val.prm.join(' ')} -- Role: ${val.role}`;
+      return `${val.cmd} ${val.prm.join(' ')} ___Role: ${val.role}`;
     });
     return result;
   }
@@ -100,7 +100,7 @@ export class UserService {
     if (isEmpty(result) || !isEmpty(result.errors)) {
       return response(400, 'ERROR', null, result.errors);
     }
-    return response(200, 'UPDATED', result);
+    return response(200, 'UPDATED', users[index]);
   }
 
   public async updateInfo(body: any, req: any, field: string) {
