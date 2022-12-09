@@ -80,7 +80,10 @@ export class GithubService {
     if (!isCreated) {
       return response(400, 'CREATE_FAIL', null, result?.response.data);
     }
-    return result.data;
+    return {
+      Message: 'Created!',
+      ref: result.data.ref,
+    };
   }
 
   public async deleteRef(body: any) {
@@ -130,8 +133,8 @@ export class GithubService {
       return response(400, 'CREATE_FAIL', null, result?.response.data);
     }
     return {
-      Message: 'Pull request created!',
-      Url: `#${result.data.number} ${result.data.title}`,
+      Message: `Pull request created by @${result.data.user.login}`,
+      Title: `<${result.data.html_url}|#${result.data.number} ${result.data.title}>`,
     };
   }
 
