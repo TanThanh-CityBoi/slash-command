@@ -22,18 +22,18 @@ export function slackResponse(dataRes: any) {
     type: 'divider',
   };
 
-  let bodyContent = `:star: :star: :star: \n \n`;
+  let bodyContent = '';
   if (status != 200) {
     bodyContent +=
       `*Status*: \`${status}\` \n` +
       `*Message*: \`${message}\` \n` +
-      `*Errors*: \`${JSON.stringify(errors) || null}\``;
+      `*Errors*: \`${JSON.stringify(errors)}\``;
   }
 
   if (!isEmpty(data) && isObject(data)) {
     const isArr = isArray(data);
     for (const [key, value] of Object.entries(data)) {
-      bodyContent += `*${!isArr ? `${key} : ` : '• '}* ${value.toString()} \n`;
+      bodyContent += `*${!isArr ? `${key} : ` : '• '}* ${value} \n`;
     }
   } else {
     bodyContent += data;
@@ -48,6 +48,6 @@ export function slackResponse(dataRes: any) {
   };
 
   return {
-    blocks: [headerTemplate, divider, bodyTemplate],
+    blocks: [divider, headerTemplate, divider, bodyTemplate],
   };
 }
