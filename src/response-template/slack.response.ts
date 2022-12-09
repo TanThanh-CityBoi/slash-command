@@ -33,7 +33,7 @@ export function slackResponse(dataRes: any) {
   if (!isEmpty(data) && isObject(data)) {
     const isArr = isArray(data);
     for (const [key, value] of Object.entries(data)) {
-      bodyContent += `*${!isArr ? key : '•'}*: ${value}`;
+      bodyContent += `*${!isArr ? `${key} : ` : '• '}* ${value.toString()} \n`;
     }
   } else {
     bodyContent += data;
