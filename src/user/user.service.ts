@@ -9,6 +9,7 @@ import {
   saveData,
 } from 'src/utils';
 import { isEmpty } from 'lodash';
+import * as moment from 'moment';
 
 @Injectable()
 export class UserService {
@@ -19,7 +20,10 @@ export class UserService {
   }
 
   public async getHelp() {
-    return COMMANDS._USER;
+    const result = COMMANDS._USER.map((val) => {
+      return `${val.cmd} ${val.prm.join(' ')} -- Role: ${val.role}`;
+    });
+    return result;
   }
 
   public async getList() {
@@ -51,7 +55,7 @@ export class UserService {
     newUser.userName = userName;
     newUser.role = 'USER';
     newUser.githubToken = '';
-    newUser.createdAt = new Date();
+    newUser.createdAt = moment(new Date()).format('YYYY-MM-DD HH:mm:ss');
     newUser.createdBy = user.userId;
 
     users.push(newUser);
@@ -96,7 +100,7 @@ export class UserService {
     if (isEmpty(result) || !isEmpty(result.errors)) {
       return response(400, 'ERROR', null, result.errors);
     }
-    return response(200, 'UPDATED');
+    return response(200, 'UPDATED', result);
   }
 
   public async updateInfo(body: any, req: any, field: string) {

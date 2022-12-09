@@ -17,7 +17,7 @@ export class TransformInterceptor implements NestInterceptor {
       map((data) => {
         const response = {
           status: 200,
-          message: 'SUCCESS',
+          message: 'COMPLETED',
           data: null,
           errors: null,
         };

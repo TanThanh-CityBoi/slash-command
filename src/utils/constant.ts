@@ -1,6 +1,6 @@
 const ROLE = {
-  ADMIN: 'ADMIN',
-  USER: 'USER',
+  ADMIN: 'admin',
+  USER: 'user',
 };
 
 const COMMANDS = {
@@ -23,7 +23,11 @@ const COMMANDS = {
       prm: ['token', '<token>', '<@user_id|user_name>'],
       role: ROLE.ADMIN,
     },
-    { cmd: '/user', prm: ['role', '<role>'], role: ROLE.ADMIN },
+    {
+      cmd: '/user',
+      prm: ['role', '<role>', '<@user_id|user_name>'],
+      role: ROLE.ADMIN,
+    },
   ],
 
   _GITHUB: [

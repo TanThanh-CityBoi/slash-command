@@ -5,6 +5,7 @@ import { join } from 'path';
 import { isEmpty } from 'lodash';
 import { COMMANDS, ROLE } from './constant';
 import { AccountDTO } from 'src/dto';
+import * as moment from 'moment';
 
 const verifySignature = (req, rawBody, teamDomain) => {
   const signature = req.headers['x-slack-signature'];
@@ -62,7 +63,7 @@ const saveData = async (data: any, fileName): Promise<any> => {
       join(process.cwd(), '/data', fileName),
       JSON.stringify(data),
     );
-    return { message: 'CREATE_OK' };
+    return data;
   } catch (error) {
     return { errors: error };
   }
@@ -97,7 +98,7 @@ const createRootUser = async () => {
     rootUser.userName = process.env.USER_NAME;
     rootUser.githubToken = '';
     rootUser.role = ROLE.ADMIN;
-    rootUser.createdAt = new Date();
+    rootUser.createdAt = moment(new Date()).format('YYYY-MM-DD HH:mm:ss');
     rootUser.createdBy = '';
     const users = [rootUser];
     saveData(users, 'account.json');
