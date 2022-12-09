@@ -4,7 +4,10 @@ import { COMMANDS } from 'src/utils';
 @Injectable()
 export class TntService {
   public async getHelp() {
-    return COMMANDS._TNT;
+    const result = COMMANDS._TNT.map((val) => {
+      return `${val.cmd} ${val.prm.join(' ')} ___Role: ${val.role}`;
+    });
+    return result;
   }
 
   public getWorkspaceInfo(body: any) {

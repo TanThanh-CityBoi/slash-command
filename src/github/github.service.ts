@@ -24,7 +24,10 @@ export class GithubService {
   }
 
   public async getHelp() {
-    return COMMANDS._GITHUB;
+    const result = COMMANDS._GITHUB.map((val) => {
+      return `${val.cmd} ${val.prm.join(' ')} ___Role: ${val.role}`;
+    });
+    return result;
   }
 
   public async getBranches(body: any) {
@@ -39,9 +42,9 @@ export class GithubService {
       'GET /repos/{owner}/{repo}/branches',
     );
     if (!isSuccess) {
-      return response(400, 'REQUEST_FAIL', null, result);
+      return response(400, 'REQUEST_FAIL', null, result?.response.data);
     }
-    return result.data;
+    return result.data.map((val) => val.name);
   }
 
   public async createRef(body: any) {
@@ -58,7 +61,12 @@ export class GithubService {
       'GET /repos/{owner}/{repo}/branches/{branch}',
     );
     if (!isSuccess) {
-      return response(400, 'REQUEST_FAIL', null, existedBaseBranch);
+      return response(
+        400,
+        'REQUEST_FAIL',
+        null,
+        existedBaseBranch?.response.data,
+      );
     }
 
     // create branch
@@ -70,7 +78,7 @@ export class GithubService {
       'POST /repos/{owner}/{repo}/git/refs',
     );
     if (!isCreated) {
-      return response(400, 'CREATE_FAIL', null, result);
+      return response(400, 'CREATE_FAIL', null, result?.response.data);
     }
     return result.data;
   }
@@ -94,9 +102,9 @@ export class GithubService {
       'DELETE /repos/{owner}/{repo}/git/refs/{ref}',
     );
     if (!isDeleted) {
-      return response(400, 'REQUEST_FAIL', null, result);
+      return response(400, 'REQUEST_FAIL', null, result?.response.data);
     }
-    return result.data;
+    return response(200, 'DELETED');
   }
 
   public async createPullRequest(body: any) {
@@ -119,9 +127,12 @@ export class GithubService {
       'POST /repos/{owner}/{repo}/pulls',
     );
     if (!isCreated) {
-      return response(400, 'CREATE_FAIL', null, result);
+      return response(400, 'CREATE_FAIL', null, result?.response.data);
     }
-    return result.data;
+    return {
+      Message: 'Pull request created!',
+      Url: `#${result.data.number} ${result.data.title}`,
+    };
   }
 
   public async mergePullRequest(body: any) {
@@ -143,8 +154,8 @@ export class GithubService {
       'PUT /repos/{owner}/{repo}/pulls/{pull_number}/merge',
     );
     if (!isSuccess) {
-      return response(400, 'MERGE_FAIL', null, result);
+      return response(400, 'MERGE_FAIL', null, result?.response.data);
     }
-    return result.data;
+    return result.data.message;
   }
 }

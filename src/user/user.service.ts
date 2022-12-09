@@ -100,6 +100,7 @@ export class UserService {
     if (isEmpty(result) || !isEmpty(result.errors)) {
       return response(400, 'ERROR', null, result.errors);
     }
+    delete users[index].githubToken;
     return response(200, 'UPDATED', users[index]);
   }
 
