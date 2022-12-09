@@ -22,7 +22,7 @@ export function slackResponse(dataRes: any) {
     type: 'divider',
   };
 
-  let bodyContent = '';
+  let bodyContent = ':star: :star: :star: \n';
   if (status != 200) {
     bodyContent +=
       `*Status*: \`${status}\` \n` +
@@ -48,6 +48,6 @@ export function slackResponse(dataRes: any) {
   };
 
   return {
-    blocks: [divider, headerTemplate, divider, bodyTemplate],
+    blocks: [headerTemplate, divider, bodyTemplate],
   };
 }
