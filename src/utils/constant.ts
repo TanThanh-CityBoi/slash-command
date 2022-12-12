@@ -7,6 +7,7 @@ const COMMANDS = {
   _TNT: [
     { cmd: '/tnt', prm: [''], role: ROLE.USER },
     { cmd: '/tnt', prm: ['w'], role: ROLE.USER },
+    { cmd: '/tnt', prm: ['gho', '<github_owner>'], role: ROLE.ADMIN },
   ],
 
   _USER: [
@@ -47,6 +48,27 @@ const COMMANDS = {
     {
       cmd: '/git',
       prm: ['m', '<pull_number>', '<repo>'],
+      role: ROLE.USER,
+    },
+    { cmd: '/git', prm: ['lb', '<repo>', '<oganization>'], role: ROLE.USER },
+    {
+      cmd: '/git',
+      prm: ['b', '<new_branch>', '<old_branch>', '<repo>', '<oganization>'],
+      role: ROLE.USER,
+    },
+    {
+      cmd: '/git',
+      prm: ['d', '<branch>', '<repo>', '<oganization>'],
+      role: ROLE.USER,
+    },
+    {
+      cmd: '/git',
+      prm: ['p', '<from_branch>', '<to_branch>', '<repo>', '<oganization>'],
+      role: ROLE.USER,
+    },
+    {
+      cmd: '/git',
+      prm: ['m', '<pull_number>', '<repo>', '<oganization>'],
       role: ROLE.USER,
     },
   ],

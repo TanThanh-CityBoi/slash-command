@@ -7,6 +7,11 @@ import { COMMANDS, ROLE } from './constant';
 import { AccountDTO } from 'src/dto';
 import * as moment from 'moment';
 
+const getGithubOwner = async (teamDomain: string) => {
+  const data = await getData('github.json');
+  return data[teamDomain.trim().toUpperCase()];
+};
+
 const verifySignature = (req, rawBody, teamDomain) => {
   const signature = req.headers['x-slack-signature'];
   const timestamp = req.headers['x-slack-request-timestamp'];
@@ -91,7 +96,7 @@ const validateCommand = (body: any, userInfo: AccountDTO, type: string) => {
   return [true, 'SUCCESSFULLY', params[0] || 'NULL_PARAM'];
 };
 
-const createRootUser = async () => {
+const generateData = async () => {
   const _createRoot = () => {
     const rootUser = new AccountDTO();
     rootUser.userId = process.env.USER_ID;
@@ -103,6 +108,8 @@ const createRootUser = async () => {
     const users = [rootUser];
     saveData(users, 'account.json');
   };
+
+  // create root user
   try {
     await fsCre.openSync(join(process.cwd(), '/data', 'account.json'), 'wx');
     _createRoot();
@@ -110,6 +117,14 @@ const createRootUser = async () => {
   } catch (error) {
     const data = await getData('account.json');
     if (isEmpty(data)) _createRoot();
+    console.log(error);
+  }
+
+  // create file github.json
+  try {
+    await fsCre.openSync(join(process.cwd(), '/data', 'github.json'), 'wx');
+    console.log('=== File is created. =====');
+  } catch (error) {
     console.log(error);
   }
 };
@@ -124,5 +139,6 @@ export {
   isCorrectUser,
   validateCommand,
   getTeamDomain,
-  createRootUser,
+  generateData,
+  getGithubOwner,
 };

@@ -1,6 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { Octokit } from 'octokit';
-import { COMMANDS, getTeamDomain, getData, response } from 'src/utils';
+import {
+  COMMANDS,
+  getTeamDomain,
+  getData,
+  response,
+  getGithubOwner,
+} from 'src/utils';
 import { isEmpty } from 'lodash';
 import { AccountDTO } from 'src/dto';
 
@@ -33,16 +39,25 @@ export class GithubService {
   public async getBranches(body: any) {
     const { user_id, text } = body;
     const user = await this.findUserById(user_id);
-    const repo = text.split(' ')[1];
+    const [repo, ghOwner] = text.split(' ').slice(1);
     const teamDomain = getTeamDomain(body);
-    const owner = process.env[`GH_OWNER_${teamDomain}`];
+    const defaultOwner = await getGithubOwner(teamDomain);
+    const owner = ghOwner ? ghOwner : defaultOwner[0];
+    if (isEmpty(owner)) {
+      return response(400, 'GH_OWNER_NOT_FOUND');
+    }
     const [isSuccess, result] = await this.sendRequest(
       user.githubToken,
       { owner, repo },
       'GET /repos/{owner}/{repo}/branches',
     );
     if (!isSuccess) {
-      return response(400, 'REQUEST_FAIL', null, result?.response.data);
+      return response(
+        400,
+        'REQUEST_FAIL',
+        null,
+        result?.response?.data || result,
+      );
     }
     return result.data.map((val) => val.name);
   }
@@ -50,9 +65,13 @@ export class GithubService {
   public async createRef(body: any) {
     const { user_id, text } = body;
     const user = await this.findUserById(user_id);
-    const [newBranch, baseBranch, repo] = text.split(' ').slice(1);
+    const [newBranch, baseBranch, repo, ghOwner] = text.split(' ').slice(1);
     const teamDomain = getTeamDomain(body);
-    const owner = process.env[`GH_OWNER_${teamDomain}`];
+    const defaultOwner = await getGithubOwner(teamDomain);
+    const owner = ghOwner ? ghOwner : defaultOwner[0];
+    if (isEmpty(owner)) {
+      return response(400, 'GH_OWNER_NOT_FOUND');
+    }
 
     // get base branch
     const [isSuccess, existedBaseBranch] = await this.sendRequest(
@@ -65,7 +84,7 @@ export class GithubService {
         400,
         'REQUEST_FAIL',
         null,
-        existedBaseBranch?.response.data,
+        existedBaseBranch?.response?.data,
       );
     }
 
@@ -78,7 +97,12 @@ export class GithubService {
       'POST /repos/{owner}/{repo}/git/refs',
     );
     if (!isCreated) {
-      return response(400, 'CREATE_FAIL', null, result?.response.data);
+      return response(
+        400,
+        'CREATE_FAIL',
+        null,
+        result?.response?.data || result,
+      );
     }
     return {
       Message: 'Created!',
@@ -89,12 +113,16 @@ export class GithubService {
   public async deleteRef(body: any) {
     const { user_id, text } = body;
     const user = await this.findUserById(user_id);
-    const [branch, repo] = text.split(' ').slice(1);
+    const [branch, repo, ghOwner] = text.split(' ').slice(1);
     if (['master', 'main', 'staging', 'aws-prod', 'dev'].includes(branch)) {
       return response(400, 'CANNOT_DELETE_DEFAULT_BRANCH');
     }
     const teamDomain = getTeamDomain(body);
-    const owner = process.env[`GH_OWNER_${teamDomain}`];
+    const defaultOwner = await getGithubOwner(teamDomain);
+    const owner = ghOwner ? ghOwner : defaultOwner[0];
+    if (isEmpty(owner)) {
+      return response(400, 'GH_OWNER_NOT_FOUND');
+    }
     const [isDeleted, result] = await this.sendRequest(
       user.githubToken,
       {
@@ -105,7 +133,12 @@ export class GithubService {
       'DELETE /repos/{owner}/{repo}/git/refs/{ref}',
     );
     if (!isDeleted) {
-      return response(400, 'REQUEST_FAIL', null, result?.response.data);
+      return response(
+        400,
+        'REQUEST_FAIL',
+        null,
+        result?.response?.data || result,
+      );
     }
     return response(200, 'DELETED');
   }
@@ -113,9 +146,13 @@ export class GithubService {
   public async createPullRequest(body: any) {
     const { user_id, text } = body;
     const user = await this.findUserById(user_id);
-    const [fromBranch, toBranch, repo] = text.split(' ').slice(1);
+    const [fromBranch, toBranch, repo, ghOwner] = text.split(' ').slice(1);
     const teamDomain = getTeamDomain(body);
-    const owner = process.env[`GH_OWNER_${teamDomain}`];
+    const defaultOwner = await getGithubOwner(teamDomain);
+    const owner = ghOwner ? ghOwner : defaultOwner[0];
+    if (isEmpty(owner)) {
+      return response(400, 'GH_OWNER_NOT_FOUND');
+    }
 
     const [isCreated, result] = await this.sendRequest(
       user.githubToken,
@@ -130,7 +167,12 @@ export class GithubService {
       'POST /repos/{owner}/{repo}/pulls',
     );
     if (!isCreated) {
-      return response(400, 'CREATE_FAIL', null, result?.response.data);
+      return response(
+        400,
+        'CREATE_FAIL',
+        null,
+        result?.response?.data || result,
+      );
     }
     return {
       Message: `Pull request created by @${result.data.user.login}`,
@@ -141,9 +183,13 @@ export class GithubService {
   public async mergePullRequest(body: any) {
     const { user_id, text } = body;
     const user = await this.findUserById(user_id);
-    const [pullNumber, repo] = text.split(' ').slice(1);
+    const [pullNumber, repo, ghOwner] = text.split(' ').slice(1);
     const teamDomain = getTeamDomain(body);
-    const owner = process.env[`GH_OWNER_${teamDomain}`];
+    const defaultOwner = await getGithubOwner(teamDomain);
+    const owner = ghOwner ? ghOwner : defaultOwner[0];
+    if (isEmpty(owner)) {
+      return response(400, 'GH_OWNER_NOT_FOUND');
+    }
 
     const [isSuccess, result] = await this.sendRequest(
       user.githubToken,

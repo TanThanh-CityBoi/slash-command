@@ -25,6 +25,8 @@ export class TntController {
       NULL_PARAM: () => this.service.getHelp(),
       //work space info
       w: () => this.service.getWorkspaceInfo(body),
+      // add github owner
+      gho: () => this.service.addGitHubOwner(body),
     };
     return _getResult[command]();
   }
