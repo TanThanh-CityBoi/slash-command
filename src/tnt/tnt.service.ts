@@ -25,8 +25,22 @@ export class TntService {
       user_id,
       user_name,
     } = body;
-    const data = await getData('github.json');
-    const github_owners = data.join(' __ ');
+    const data = (await getData('github.json')) || {};
+    const teamDomain = getTeamDomain(body);
+    console.log(
+      '🚀 ~ file: tnt.service.ts:30 ~ TntService ~ getWorkspaceInfo ~ teamDomain',
+      teamDomain,
+    );
+    const githubOwners = data[teamDomain] || [];
+    console.log(
+      '🚀 ~ file: tnt.service.ts:32 ~ TntService ~ getWorkspaceInfo ~ githubOwners',
+      githubOwners,
+    );
+    const github_owners = githubOwners.join(' __ ');
+    console.log(
+      '🚀 ~ file: tnt.service.ts:34 ~ TntService ~ getWorkspaceInfo ~ github_owners',
+      github_owners,
+    );
     return {
       team_id,
       team_domain,
