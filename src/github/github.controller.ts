@@ -32,6 +32,8 @@ export class GithubController {
       p: () => this.service.createPullRequest(body),
       //merge pull request
       m: () => this.service.mergePullRequest(body),
+      //reset branch
+      rb: () => this.service.resetBranch(body),
     };
     return _getResult[command]();
   }
