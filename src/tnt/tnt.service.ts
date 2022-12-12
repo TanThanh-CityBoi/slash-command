@@ -27,20 +27,8 @@ export class TntService {
     } = body;
     const data = (await getData('github.json')) || {};
     const teamDomain = getTeamDomain(body);
-    console.log(
-      '🚀 ~ file: tnt.service.ts:30 ~ TntService ~ getWorkspaceInfo ~ teamDomain',
-      teamDomain,
-    );
     const githubOwners = data[teamDomain] || [];
-    console.log(
-      '🚀 ~ file: tnt.service.ts:32 ~ TntService ~ getWorkspaceInfo ~ githubOwners',
-      githubOwners,
-    );
     const github_owners = githubOwners.join(' __ ');
-    console.log(
-      '🚀 ~ file: tnt.service.ts:34 ~ TntService ~ getWorkspaceInfo ~ github_owners',
-      github_owners,
-    );
     return {
       team_id,
       team_domain,
@@ -52,7 +40,7 @@ export class TntService {
     };
   }
 
-  public async addGitHubOwner(body: any) {
+  public async addGithubOwner(body: any) {
     const { text } = body;
     const newGithubOwner = text.split(' ')[1];
     const data = (await getData('github.json')) || {};
@@ -65,5 +53,42 @@ export class TntService {
     data[teamDomain] = githubOwners;
     await saveData(data, 'github.json');
     return data[teamDomain];
+  }
+
+  public async removeGithubOwner(body: any) {
+    const { text } = body;
+    const param = text.split(' ')[1];
+    const data = (await getData('github.json')) || {};
+    const teamDomain = getTeamDomain(body);
+    const githubOwners = data[teamDomain] || [];
+    if (data[teamDomain] && githubOwners.includes(param)) {
+      const newArray = githubOwners.filter((val) => {
+        return val != param;
+      });
+      data[teamDomain] = newArray || [];
+      await saveData(data, 'github.json');
+      return newArray;
+    }
+    return response(400, 'GH_OWNER_NOT_FOUND');
+  }
+
+  public async setDefaultGithubOwner(body: any) {
+    const { text } = body;
+    const param = text.split(' ')[1];
+    const data = (await getData('github.json')) || {};
+    const teamDomain = getTeamDomain(body);
+    let githubOwners = data[teamDomain] || [];
+    if (data[teamDomain] && githubOwners.includes(param)) {
+      if (githubOwners[0] == param) {
+        return githubOwners;
+      }
+      githubOwners = githubOwners.filter((val) => {
+        return val != param;
+      });
+    }
+    const newArray = [param].concat(githubOwners);
+    data[teamDomain] = newArray || [];
+    await saveData(data, 'github.json');
+    return newArray;
   }
 }

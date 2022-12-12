@@ -9,7 +9,7 @@ import * as moment from 'moment';
 
 const getGithubOwner = async (teamDomain: string) => {
   const data = await getData('github.json');
-  return data[teamDomain.trim().toUpperCase()];
+  return data[teamDomain.trim().toUpperCase()] || [];
 };
 
 const verifySignature = (req, rawBody, teamDomain) => {

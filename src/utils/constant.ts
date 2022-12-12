@@ -7,7 +7,9 @@ const COMMANDS = {
   _TNT: [
     { cmd: '/tnt', prm: [''], role: ROLE.USER },
     { cmd: '/tnt', prm: ['w'], role: ROLE.USER },
-    { cmd: '/tnt', prm: ['gho', '<github_owner>'], role: ROLE.ADMIN },
+    { cmd: '/tnt', prm: ['ag', '<github_owner>'], role: ROLE.ADMIN },
+    { cmd: '/tnt', prm: ['dg', '<github_owner>'], role: ROLE.ADMIN },
+    { cmd: '/tnt', prm: ['df', '<github_owner>'], role: ROLE.ADMIN },
   ],
 
   _USER: [

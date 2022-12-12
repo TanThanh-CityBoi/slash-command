@@ -26,7 +26,11 @@ export class TntController {
       //work space info
       w: () => this.service.getWorkspaceInfo(body),
       // add github owner
-      gho: () => this.service.addGitHubOwner(body),
+      ag: () => this.service.addGithubOwner(body),
+      // remove github owner
+      dg: () => this.service.removeGithubOwner(body),
+      //set default github owner
+      df: () => this.service.setDefaultGithubOwner(body),
     };
     return _getResult[command]();
   }
