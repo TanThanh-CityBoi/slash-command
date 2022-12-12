@@ -13,8 +13,12 @@ import { AccountDTO } from 'src/dto';
 
 @Injectable()
 export class GithubService {
-  public async findUserById(userId: string): Promise<AccountDTO | null> {
-    const accounts = await getData('account.json');
+  public async findUserById(
+    userId: string,
+    teamDomain,
+  ): Promise<AccountDTO | null> {
+    const objAccount = await getData('account.json');
+    const accounts = objAccount[teamDomain] || [];
     if (isEmpty(accounts) || !isEmpty(accounts.errors)) return null;
     return accounts.find((account) => account.userId === userId);
   }
@@ -39,10 +43,12 @@ export class GithubService {
 
   public async getBranches(body: any) {
     const { user_id, text } = body;
-    const user = await this.findUserById(user_id);
-    const [repo, ghOwner] = text.split(' ').slice(1);
     const teamDomain = getTeamDomain(body);
-    const defaultOwner = await getGithubOwner(teamDomain);
+    const [user, defaultOwner] = await Promise.all([
+      this.findUserById(user_id, teamDomain),
+      getGithubOwner(teamDomain),
+    ]);
+    const [repo, ghOwner] = text.split(' ').slice(1);
     const owner = ghOwner ? ghOwner : defaultOwner[0];
     if (isEmpty(owner)) {
       return response(400, 'GH_OWNER_NOT_FOUND');
@@ -67,7 +73,7 @@ export class GithubService {
     const { user_id, text } = body;
     const teamDomain = getTeamDomain(body);
     const [user, defaultOwner] = await Promise.all([
-      this.findUserById(user_id),
+      this.findUserById(user_id, teamDomain),
       getGithubOwner(teamDomain),
     ]);
     const [repo, newBranch, baseBranch = 'staging', ghOwner] = text
@@ -117,7 +123,7 @@ export class GithubService {
     const { user_id, text } = body;
     const teamDomain = getTeamDomain(body);
     const [user, defaultOwner] = await Promise.all([
-      this.findUserById(user_id),
+      this.findUserById(user_id, teamDomain),
       getGithubOwner(teamDomain),
     ]);
     const [repo, branch, ghOwner] = text.split(' ').slice(1);
@@ -148,7 +154,7 @@ export class GithubService {
     const { user_id, text } = body;
     const teamDomain = getTeamDomain(body);
     const [user, defaultOwner] = await Promise.all([
-      this.findUserById(user_id),
+      this.findUserById(user_id, teamDomain),
       getGithubOwner(teamDomain),
     ]);
     const [repo, fromBranch, toBranch = 'staging', ghOwner] = text
@@ -186,10 +192,12 @@ export class GithubService {
 
   public async mergePullRequest(body: any) {
     const { user_id, text } = body;
-    const user = await this.findUserById(user_id);
-    const [pullNumber, repo, ghOwner] = text.split(' ').slice(1);
     const teamDomain = getTeamDomain(body);
-    const defaultOwner = await getGithubOwner(teamDomain);
+    const [defaultOwner, user] = await Promise.all([
+      getGithubOwner(teamDomain),
+      this.findUserById(user_id, teamDomain),
+    ]);
+    const [pullNumber, repo, ghOwner] = text.split(' ').slice(1);
     const owner = ghOwner ? ghOwner : defaultOwner[0];
     if (isEmpty(owner)) {
       return response(400, 'GH_OWNER_NOT_FOUND');
@@ -216,7 +224,7 @@ export class GithubService {
     const { user_id, text } = body;
     const teamDomain = getTeamDomain(body);
     const [user, defaultOwner] = await Promise.all([
-      this.findUserById(user_id),
+      this.findUserById(user_id, teamDomain),
       getGithubOwner(teamDomain),
     ]);
     const [repo, branch, baseBranch = 'staging', ghOwner] = text

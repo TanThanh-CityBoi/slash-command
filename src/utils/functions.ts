@@ -8,7 +8,7 @@ import { AccountDTO } from 'src/dto';
 import * as moment from 'moment';
 
 const getGithubOwner = async (teamDomain: string) => {
-  const data = await getData('github.json');
+  const data = (await getData('github.json')) || {};
   return data[teamDomain.trim().toUpperCase()] || [];
 };
 
@@ -70,6 +70,7 @@ const saveData = async (data: any, fileName): Promise<any> => {
     );
     return data;
   } catch (error) {
+    console.log(error);
     return { errors: error };
   }
 };
@@ -98,34 +99,31 @@ const validateCommand = (body: any, userInfo: AccountDTO, type: string) => {
 
 const generateData = async () => {
   const _createRoot = () => {
-    const rootUser = new AccountDTO();
-    rootUser.userId = process.env.USER_ID;
-    rootUser.userName = process.env.USER_NAME;
-    rootUser.githubToken = '';
-    rootUser.role = ROLE.ADMIN;
-    rootUser.createdAt = moment(new Date()).format('YYYY-MM-DD HH:mm:ss');
-    rootUser.createdBy = '';
-    const users = [rootUser];
+    const listWorkSpace = Object.keys(process.env)
+      .filter((itm) => itm.includes('SECRET_KEY_'))
+      .map((key) => key.split('SECRET_KEY_')[1]);
+    const users = {};
+    listWorkSpace.map((workspace) => {
+      const rootUser = new AccountDTO();
+      rootUser.userId = process.env[`ROOT_USER_ID_${workspace}`];
+      rootUser.userName = process.env[`ROOT_USER_NAME_${workspace}`];
+      rootUser.githubToken = '';
+      rootUser.role = ROLE.ADMIN;
+      rootUser.createdAt = moment(new Date()).format('YYYY-MM-DD HH:mm:ss');
+      rootUser.createdBy = '';
+      users[workspace] = [rootUser];
+    });
+
     saveData(users, 'account.json');
   };
-
-  // create root user
-  try {
-    await fsCre.openSync(join(process.cwd(), '/data', 'account.json'), 'wx');
-    _createRoot();
-    console.log('=== File is created. =====');
-  } catch (error) {
-    const data = await getData('account.json');
-    if (isEmpty(data)) _createRoot();
-    console.log(error);
+  const filePathAccount = join(process.cwd(), '/data', 'account.json');
+  const isExisted = fsCre.existsSync(filePathAccount);
+  if (!isExisted) {
+    return _createRoot();
   }
-
-  // create file github.json
-  try {
-    await fsCre.openSync(join(process.cwd(), '/data', 'github.json'), 'wx');
-    console.log('=== File is created. =====');
-  } catch (error) {
-    console.log(error);
+  const fileData = await getData('account.json');
+  if (isEmpty(fileData)) {
+    _createRoot();
   }
 };
 
