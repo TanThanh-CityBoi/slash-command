@@ -3,12 +3,12 @@ import * as fs from 'fs/promises';
 import * as fsCre from 'fs';
 import { join } from 'path';
 import { isEmpty } from 'lodash';
-import { COMMANDS, ROLE } from './constant';
+import { COMMANDS, ROLE, ROLE_PREORITY } from './constant';
 import { AccountDTO } from 'src/dto';
 import * as moment from 'moment';
 
 const getGithubOwner = async (teamDomain: string) => {
-  const data = (await getData('github.json')) || {};
+  const data = getData('github.json') || {};
   return data[teamDomain.trim().toUpperCase()] || [];
 };
 
@@ -49,17 +49,12 @@ const response = (status, message, data = null, errors = null) => {
   };
 };
 
-const getData = async (fileName: string): Promise<any> => {
-  let objData;
-  await fs
-    .readFile(join(process.cwd(), '/data', fileName), 'utf-8')
-    .then((data) => {
-      objData = JSON.parse(data.toString());
-    })
-    .catch((error) => {
-      return { errors: error };
-    });
-  return objData;
+const getData = (fileName: string) => {
+  const path = join(process.cwd(), '/data', fileName);
+  const isExisted = fsCre.existsSync(path);
+  if (!isExisted) return null;
+  const data = fsCre.readFileSync(path, 'utf-8') || '{}';
+  return JSON.parse(data);
 };
 
 const saveData = async (data: any, fileName): Promise<any> => {
@@ -91,40 +86,40 @@ const validateCommand = (body: any, userInfo: AccountDTO, type: string) => {
   if (isEmpty(existedCommand)) {
     return [false, 'COMMAND_NOT_FOUND'];
   }
-  if (userInfo.role !== ROLE.ADMIN && existedCommand.role !== userInfo.role) {
+  const userPriority = ROLE_PREORITY[userInfo.role.toUpperCase()];
+  const reqUserPriority = ROLE_PREORITY[existedCommand.role.toUpperCase()];
+  if (userPriority > reqUserPriority) {
     return [false, 'PERMISSION_DENIED'];
   }
   return [true, 'SUCCESSFULLY', params[0] || 'NULL_PARAM'];
 };
 
 const generateData = async () => {
-  const _createRoot = () => {
-    const listWorkSpace = Object.keys(process.env)
-      .filter((itm) => itm.includes('SECRET_KEY_'))
-      .map((key) => key.split('SECRET_KEY_')[1]);
-    const users = {};
-    listWorkSpace.map((workspace) => {
-      const rootUser = new AccountDTO();
-      rootUser.userId = process.env[`ROOT_USER_ID_${workspace}`];
-      rootUser.userName = process.env[`ROOT_USER_NAME_${workspace}`];
-      rootUser.githubToken = '';
-      rootUser.role = ROLE.ADMIN;
-      rootUser.createdAt = moment(new Date()).format('YYYY-MM-DD HH:mm:ss');
-      rootUser.createdBy = '';
-      users[workspace] = [rootUser];
-    });
+  const fileData = getData('account.json') || {};
+  const listWorkSpace = Object.keys(process.env)
+    .filter((itm) => itm.includes('SECRET_KEY_'))
+    .map((key) => key.split('SECRET_KEY_')[1]);
+  listWorkSpace.map((workspace) => {
+    if (!isEmpty(fileData) && !isEmpty(fileData[workspace])) {
+      return;
+    }
+    const rootUser = new AccountDTO();
+    rootUser.userId = process.env[`ROOT_USER_ID_${workspace}`];
+    rootUser.userName = process.env[`ROOT_USER_NAME_${workspace}`];
+    rootUser.githubToken = '';
+    rootUser.role = ROLE.ROOT;
+    rootUser.createdAt = moment(new Date()).format('YYYY-MM-DD HH:mm:ss');
+    rootUser.createdBy = '';
+    fileData[workspace] = [rootUser];
+  });
+  await saveData(fileData, 'account.json');
+};
 
-    saveData(users, 'account.json');
-  };
-  const filePathAccount = join(process.cwd(), '/data', 'account.json');
-  const isExisted = fsCre.existsSync(filePathAccount);
-  if (!isExisted) {
-    return _createRoot();
-  }
-  const fileData = await getData('account.json');
-  if (isEmpty(fileData)) {
-    _createRoot();
-  }
+const findUserById = (userId: string, teamDomain) => {
+  const objAccount = getData('account.json');
+  const accounts = objAccount[teamDomain] || [];
+  if (isEmpty(accounts) || !isEmpty(accounts.errors)) return null;
+  return accounts.find((account) => account.userId === userId);
 };
 
 export {
@@ -139,4 +134,5 @@ export {
   getTeamDomain,
   generateData,
   getGithubOwner,
+  findUserById,
 };

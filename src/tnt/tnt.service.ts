@@ -25,7 +25,7 @@ export class TntService {
       user_id,
       user_name,
     } = body;
-    const data = (await getData('github.json')) || {};
+    const data = getData('github.json') || {};
     const teamDomain = getTeamDomain(body);
     const githubOwners = data[teamDomain] || [];
     const github_owners = githubOwners.join(' __ ');
@@ -43,7 +43,7 @@ export class TntService {
   public async addGithubOwner(body: any) {
     const { text } = body;
     const newGithubOwner = text.split(' ')[1];
-    const data = (await getData('github.json')) || {};
+    const data = getData('github.json') || {};
     const teamDomain = getTeamDomain(body);
     const githubOwners = data[teamDomain] || [];
     if (data[teamDomain] && data[teamDomain].includes(newGithubOwner)) {
@@ -58,7 +58,7 @@ export class TntService {
   public async removeGithubOwner(body: any) {
     const { text } = body;
     const param = text.split(' ')[1];
-    const data = (await getData('github.json')) || {};
+    const data = getData('github.json') || {};
     const teamDomain = getTeamDomain(body);
     const githubOwners = data[teamDomain] || [];
     if (data[teamDomain] && githubOwners.includes(param)) {
@@ -75,7 +75,7 @@ export class TntService {
   public async setDefaultGithubOwner(body: any) {
     const { text } = body;
     const param = text.split(' ')[1];
-    const data = (await getData('github.json')) || {};
+    const data = getData('github.json') || {};
     const teamDomain = getTeamDomain(body);
     let githubOwners = data[teamDomain] || [];
     if (data[teamDomain] && githubOwners.includes(param)) {

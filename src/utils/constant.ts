@@ -1,6 +1,12 @@
 const ROLE = {
+  ROOT: 'root',
   ADMIN: 'admin',
   USER: 'user',
+};
+const ROLE_PREORITY = {
+  ROOT: 1,
+  ADMIN: 2,
+  USER: 3,
 };
 
 const COMMANDS = {
@@ -14,8 +20,8 @@ const COMMANDS = {
 
   _USER: [
     { cmd: '/user', prm: [''], role: ROLE.USER },
-    { cmd: '/user', prm: ['list'], role: ROLE.USER },
-    { cmd: '/user', prm: ['l'], role: ROLE.USER },
+    { cmd: '/user', prm: ['list'], role: ROLE.ADMIN },
+    { cmd: '/user', prm: ['l'], role: ROLE.ADMIN },
     { cmd: '/user', prm: ['add', '<@user_id|user_name>'], role: ROLE.ADMIN },
     { cmd: '/user', prm: ['a', '<@user_id|user_name>'], role: ROLE.ADMIN },
     { cmd: '/user', prm: ['delete', '<@user_id|user_name>'], role: ROLE.ADMIN },
@@ -122,4 +128,4 @@ const GH_API = {
   DELETE_BRANCH: 'DELETE /repos/{owner}/{repo}/git/refs/{ref}',
 };
 
-export { COMMANDS, ROLE, GH_API };
+export { COMMANDS, ROLE, GH_API, ROLE_PREORITY };

@@ -1,7 +1,7 @@
 import { Strategy } from 'passport-local';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, RawBodyRequest } from '@nestjs/common';
-import { verifySignature } from 'src/utils';
+import { findUserById, verifySignature } from 'src/utils';
 import { isEmpty } from 'lodash';
 import { response } from 'src/utils';
 import { UserService } from 'src/user/user.service';
@@ -24,7 +24,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     if (!verifySignature(req, rawBody, team_domain)) {
       return response(401, 'UNAUTHORIZED_APP');
     }
-    const user = await this.userService.findById(user_id);
+    const user = await findUserById(user_id, team_domain.toUpperCase());
     if (isEmpty(user)) {
       return response(401, 'UNAUTHORIZED_USER');
     }

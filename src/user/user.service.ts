@@ -8,18 +8,14 @@ import {
   getData,
   saveData,
   ROLE,
+  findUserById,
+  ROLE_PREORITY,
 } from 'src/utils';
 import { isEmpty } from 'lodash';
 import * as moment from 'moment';
 
 @Injectable()
 export class UserService {
-  public async findById(userId: string): Promise<AccountDTO | null> {
-    const accounts = await getData('account.json');
-    if (isEmpty(accounts) || !isEmpty(accounts.errors)) return null;
-    return accounts.find((account) => account.userId === userId);
-  }
-
   public async getHelp() {
     const result = COMMANDS._USER.map((val) => {
       return `${val.cmd} ${val.prm.join(' ')} ___Role: ${val.role}`;
@@ -27,8 +23,9 @@ export class UserService {
     return result;
   }
 
-  public async getList() {
-    const accounts = await getData('account.json');
+  public async getList(teamDomain: string) {
+    const objAccount = getData('account.json') || {};
+    const accounts = objAccount[teamDomain] || [];
     if (isEmpty(accounts) || !isEmpty(accounts.errors)) {
       return response(404, 'NOT_FOUND', null, accounts.errors);
     }
@@ -38,15 +35,16 @@ export class UserService {
     return result;
   }
 
-  public async createAccount(body: any, req: any) {
+  public async createAccount(teamDomain: string, body: any, req: any) {
     const user = req.user.data;
     const params = body.text;
     const rawInfo = params.split(' ')[1];
     if (!isCorrectUser(rawInfo)) {
       return response(400, 'COMMAND_NOT_FOUND');
     }
-    const [userId, userName] = await parseInfo(rawInfo);
-    const users = await getData('account.json');
+    const [userId, userName] = parseInfo(rawInfo);
+    const objAccount = getData('account.json') || {};
+    const users = objAccount[teamDomain] || [];
     const existedUser = users.find((x) => x.userId === userId);
     if (!isEmpty(existedUser)) {
       return response(400, 'EXISTED_USER');
@@ -58,37 +56,47 @@ export class UserService {
     newUser.githubToken = '';
     newUser.createdAt = moment(new Date()).format('YYYY-MM-DD HH:mm:ss');
     newUser.createdBy = user.userId;
-
     users.push(newUser);
-    const result = await saveData(users, 'account.json');
+    objAccount[teamDomain] = users;
+    const result = await saveData(objAccount, 'account.json');
     if (isEmpty(result) || !isEmpty(result.errors)) {
       return response(400, 'ERROR', null, result.errors);
     }
     return newUser;
   }
 
-  public async deleteAccount(body: any) {
+  public async deleteAccount(teamDomain: string, body: any) {
     const params = body.text;
     const rawInfo = params.split(' ')[1];
     if (!isCorrectUser(rawInfo)) {
       return response(400, 'INVALID_PARAMS');
     }
-    const userId = await parseInfo(rawInfo)[0];
-    const existedUser = await this.findById(userId);
-    if (isEmpty(existedUser)) {
+    const deleteUserId = parseInfo(rawInfo)[0];
+    const reqUserId = body.user_id;
+    const deleteUserInfo = findUserById(deleteUserId, teamDomain);
+    const reqUserInfo = findUserById(reqUserId, teamDomain);
+    if (isEmpty(deleteUserInfo)) {
       return response(404, 'USER_NOT_FOUND');
     }
-    const users = await getData('account.json');
-    const newdata = users.filter((x) => x.userId !== userId);
-    const result = await saveData(newdata, 'account.json');
+    const deleteUserPri = ROLE_PREORITY[deleteUserInfo.role.toUpperCase()];
+    const reqUserPri = ROLE_PREORITY[reqUserInfo.role.toUpperCase()];
+    if (deleteUserPri <= reqUserPri) {
+      return response(400, 'PERMISSION_DENIED');
+    }
+    const objAccount = getData('account.json') || {};
+    const users = objAccount[teamDomain] || [];
+    const newdata = users.filter((x) => x.userId !== deleteUserId);
+    objAccount[teamDomain] = newdata;
+    const result = await saveData(objAccount, 'account.json');
     if (isEmpty(result) || !isEmpty(result.errors)) {
       return response(400, 'ERROR', null, result.errors);
     }
     return response(200, 'DELETED');
   }
 
-  private async _updateAccount(userId, field, value) {
-    const users = await getData('account.json');
+  private async _updateAccount(teamDomain: string, userId, field, value) {
+    const objAccount = getData('account.json') || {};
+    const users = objAccount[teamDomain] || [];
     const index = users.findIndex((x) => x.userId == userId);
     if (index < 0) {
       return response(404, 'USER_NOT_FOUND');
@@ -97,7 +105,8 @@ export class UserService {
       return response(400, 'UPDATE_FAIL');
     }
     users[index][field] = value;
-    const result = await saveData(users, 'account.json');
+    objAccount[teamDomain] = users;
+    const result = await saveData(objAccount, 'account.json');
     if (isEmpty(result) || !isEmpty(result.errors)) {
       return response(400, 'ERROR', null, result.errors);
     }
@@ -105,18 +114,63 @@ export class UserService {
     return response(200, 'UPDATED', users[index]);
   }
 
-  public async updateInfo(body: any, req: any, field: string) {
+  public async updateToken(teamDomain: string, body: any, req: any) {
     const reqUser = req.user.data;
     const params = body.text;
     const valueUpdate = params.split(' ')[1];
     const existedUserParam = params.split(' ')[2];
-    if (existedUserParam) {
-      if (!isCorrectUser(existedUserParam)) {
-        return response(400, 'INVALID_PARAMS');
-      }
-      const userId = await parseInfo(existedUserParam)[0];
-      return this._updateAccount(userId, field, valueUpdate);
+
+    if (!existedUserParam) {
+      return this._updateAccount(
+        teamDomain,
+        reqUser.userId,
+        'githubToken',
+        valueUpdate,
+      );
     }
-    return this._updateAccount(reqUser.userId, field, valueUpdate);
+    if (!isCorrectUser(existedUserParam)) {
+      return response(400, 'INVALID_PARAMS');
+    }
+
+    const updateUserId = parseInfo(existedUserParam)[0];
+    const updateUserInfo = findUserById(updateUserId, teamDomain);
+    if (isEmpty(updateUserInfo)) {
+      return response(404, 'USER_NOT_FOUND');
+    }
+    const updateUserPri = ROLE_PREORITY[updateUserInfo.role.toUpperCase()];
+    const reqUserPri = ROLE_PREORITY[reqUser.role.toUpperCase()];
+    if (updateUserPri <= reqUserPri) {
+      return response(400, 'PERMISSION_DENIED');
+    }
+
+    const userId = parseInfo(existedUserParam)[0];
+    return this._updateAccount(teamDomain, userId, 'githubToken', valueUpdate);
+  }
+
+  public async updateRole(teamDomain: string, body: any, req: any) {
+    const reqUser = req.user.data;
+    const params = body.text;
+    const valueUpdate = params.split(' ')[1];
+    const existedUserParam = params.split(' ')[2];
+    if (
+      !isCorrectUser(existedUserParam) ||
+      !Object.values(ROLE).includes(valueUpdate)
+    ) {
+      return response(400, 'INVALID_PARAMS');
+    }
+
+    const updateUserId = parseInfo(existedUserParam)[0];
+    const updateUserInfo = findUserById(updateUserId, teamDomain);
+    if (isEmpty(updateUserInfo)) {
+      return response(404, 'USER_NOT_FOUND');
+    }
+    const updateUserPri = ROLE_PREORITY[updateUserInfo.role.toUpperCase()];
+    const reqUserPri = ROLE_PREORITY[reqUser.role.toUpperCase()];
+    if (updateUserPri <= reqUserPri) {
+      return response(400, 'PERMISSION_DENIED');
+    }
+
+    const userId = parseInfo(existedUserParam)[0];
+    return this._updateAccount(teamDomain, userId, 'role', valueUpdate);
   }
 }

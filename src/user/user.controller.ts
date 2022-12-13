@@ -1,5 +1,5 @@
 import { Body, Controller, Post, Request } from '@nestjs/common';
-import { response, validateCommand } from 'src/utils';
+import { getTeamDomain, response, validateCommand } from 'src/utils';
 import { UserService } from './user.service';
 
 @Controller('user')
@@ -17,26 +17,27 @@ export class UserController {
       req.user.data,
       'USER',
     );
+    const teamDomain = getTeamDomain(body);
     if (!isValid) return response(400, message);
     //switch param
     const _getResult = {
       NULL_PARAM: () => this.service.getHelp(),
 
       //list user
-      list: () => this.service.getList(),
-      l: () => this.service.getList(),
+      list: () => this.service.getList(teamDomain),
+      l: () => this.service.getList(teamDomain),
 
       // add user
-      add: () => this.service.createAccount(body, req),
-      a: () => this.service.createAccount(body, req),
+      add: () => this.service.createAccount(teamDomain, body, req),
+      a: () => this.service.createAccount(teamDomain, body, req),
 
       // remove user
-      delete: () => this.service.deleteAccount(body),
-      d: () => this.service.deleteAccount(body),
+      delete: () => this.service.deleteAccount(teamDomain, body),
+      d: () => this.service.deleteAccount(teamDomain, body),
 
       // update info
-      token: () => this.service.updateInfo(body, req, 'githubToken'),
-      role: () => this.service.updateInfo(body, req, 'role'),
+      token: () => this.service.updateToken(teamDomain, body, req),
+      role: () => this.service.updateRole(teamDomain, body, req),
     };
     return _getResult[command]();
   }
