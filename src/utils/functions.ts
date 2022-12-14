@@ -71,7 +71,7 @@ const saveData = async (data: any, fileName): Promise<any> => {
 };
 
 const isCorrectUser = (userInfo: string): boolean => {
-  return /<@\w+[|]\w+>/.test(userInfo);
+  return /<@\w+[|].*>/.test(userInfo);
 };
 
 const validateCommand = (body: any, userInfo: AccountDTO, type: string) => {

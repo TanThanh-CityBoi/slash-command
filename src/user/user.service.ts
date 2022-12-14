@@ -40,7 +40,7 @@ export class UserService {
     const params = body.text;
     const rawInfo = params.split(' ')[1];
     if (!isCorrectUser(rawInfo)) {
-      return response(400, 'COMMAND_NOT_FOUND');
+      return response(400, 'INVALID_PARAM');
     }
     const [userId, userName] = parseInfo(rawInfo);
     const objAccount = getData('account.json') || {};
