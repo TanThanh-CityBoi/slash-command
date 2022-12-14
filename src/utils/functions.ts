@@ -23,10 +23,7 @@ const verifySignature = (req, rawBody, teamDomain) => {
 };
 
 const parseInfo = (rawInfo: string) => {
-  let [userId, userName] = rawInfo.split('|');
-  userId = userId.replace('<', '').replace('@', '').trim();
-  userName = userName.replace('>', '').trim();
-  return [userId, userName];
+  return rawInfo.replace(/<|@|>/g, '').split('|');
 };
 
 const getTeamDomain = (body: any): string => {
@@ -76,7 +73,7 @@ const isCorrectUser = (userInfo: string): boolean => {
 
 const validateCommand = (body: any, userInfo: AccountDTO, type: string) => {
   const { command, text } = body;
-  const params = text.split(' ');
+  const params = text.split(/\s+/g);
   const existedCommand = COMMANDS[`_${type}`].find(
     (x) =>
       x.cmd == command &&

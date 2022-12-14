@@ -38,7 +38,7 @@ export class UserService {
   public async createAccount(teamDomain: string, body: any, req: any) {
     const user = req.user.data;
     const params = body.text;
-    const rawInfo = params.split(' ')[1];
+    const rawInfo = params.split(/\s+/g)[1];
     if (!isCorrectUser(rawInfo)) {
       return response(400, 'INVALID_PARAM');
     }
@@ -67,7 +67,7 @@ export class UserService {
 
   public async deleteAccount(teamDomain: string, body: any) {
     const params = body.text;
-    const rawInfo = params.split(' ')[1];
+    const rawInfo = params.split(/\s+/g)[1];
     if (!isCorrectUser(rawInfo)) {
       return response(400, 'INVALID_PARAMS');
     }
@@ -117,8 +117,8 @@ export class UserService {
   public async updateToken(teamDomain: string, body: any, req: any) {
     const reqUser = req.user.data;
     const params = body.text;
-    const valueUpdate = params.split(' ')[1];
-    const existedUserParam = params.split(' ')[2];
+    const valueUpdate = params.split(/\s+/g)[1];
+    const existedUserParam = params.split(/\s+/g)[2];
 
     if (!existedUserParam) {
       return this._updateAccount(
@@ -150,8 +150,8 @@ export class UserService {
   public async updateRole(teamDomain: string, body: any, req: any) {
     const reqUser = req.user.data;
     const params = body.text;
-    const valueUpdate = params.split(' ')[1];
-    const existedUserParam = params.split(' ')[2];
+    const valueUpdate = params.split(/\s+/g)[1];
+    const existedUserParam = params.split(/\s+/g)[2];
     if (
       !isCorrectUser(existedUserParam) ||
       !Object.values(ROLE).includes(valueUpdate)

@@ -42,7 +42,7 @@ export class TntService {
 
   public async addGithubOwner(body: any) {
     const { text } = body;
-    const newGithubOwner = text.split(' ')[1];
+    const newGithubOwner = text.split(/\s+/g)[1];
     const data = getData('github.json') || {};
     const teamDomain = getTeamDomain(body);
     const githubOwners = data[teamDomain] || [];
@@ -57,7 +57,7 @@ export class TntService {
 
   public async removeGithubOwner(body: any) {
     const { text } = body;
-    const param = text.split(' ')[1];
+    const param = text.split(/\s+/g)[1];
     const data = getData('github.json') || {};
     const teamDomain = getTeamDomain(body);
     const githubOwners = data[teamDomain] || [];
@@ -74,7 +74,7 @@ export class TntService {
 
   public async setDefaultGithubOwner(body: any) {
     const { text } = body;
-    const param = text.split(' ')[1];
+    const param = text.split(/\s+/g)[1];
     const data = getData('github.json') || {};
     const teamDomain = getTeamDomain(body);
     let githubOwners = data[teamDomain] || [];

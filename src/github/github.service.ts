@@ -37,7 +37,7 @@ export class GithubService {
       findUserById(user_id, teamDomain),
       getGithubOwner(teamDomain),
     ]);
-    const [repo, ghOwner] = text.split(' ').slice(1);
+    const [repo, ghOwner] = text.split(/\s+/g).slice(1);
     const owner = ghOwner ? ghOwner : defaultOwner[0];
     if (isEmpty(owner)) {
       return response(400, 'GH_OWNER_NOT_FOUND');
@@ -66,7 +66,7 @@ export class GithubService {
       getGithubOwner(teamDomain),
     ]);
     const [repo, newBranch, baseBranch = 'staging', ghOwner] = text
-      .split(' ')
+      .split(/\s+/g)
       .slice(1);
     const owner = ghOwner ? ghOwner : defaultOwner[0];
     if (isEmpty(owner)) {
@@ -115,7 +115,7 @@ export class GithubService {
       findUserById(user_id, teamDomain),
       getGithubOwner(teamDomain),
     ]);
-    const [repo, branch, ghOwner] = text.split(' ').slice(1);
+    const [repo, branch, ghOwner] = text.split(/\s+/g).slice(1);
     if (['master', 'main', 'staging', 'aws-prod', 'dev'].includes(branch)) {
       return response(400, 'CANNOT_DELETE_DEFAULT_BRANCH');
     }
@@ -147,7 +147,7 @@ export class GithubService {
       getGithubOwner(teamDomain),
     ]);
     const [repo, fromBranch, toBranch = 'staging', ghOwner] = text
-      .split(' ')
+      .split(/\s+/g)
       .slice(1);
     const owner = ghOwner ? ghOwner : defaultOwner[0];
     if (isEmpty(owner)) {
@@ -186,7 +186,7 @@ export class GithubService {
       getGithubOwner(teamDomain),
       findUserById(user_id, teamDomain),
     ]);
-    const [pullNumber, repo, ghOwner] = text.split(' ').slice(1);
+    const [pullNumber, repo, ghOwner] = text.split(/\s+/g).slice(1);
     const owner = ghOwner ? ghOwner : defaultOwner[0];
     if (isEmpty(owner)) {
       return response(400, 'GH_OWNER_NOT_FOUND');
@@ -217,7 +217,7 @@ export class GithubService {
       getGithubOwner(teamDomain),
     ]);
     const [repo, branch, baseBranch = 'staging', ghOwner] = text
-      .split(' ')
+      .split(/\s+/g)
       .slice(1);
     if (['master', 'main', 'staging', 'aws-prod'].includes(branch)) {
       return response(400, 'CANNOT_RESET_DEFAULT_BRANCH');
