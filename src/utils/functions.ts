@@ -129,7 +129,7 @@ const sendSlack = (teamDomain, channel, content) => {
     await axios.post(
       url,
       {
-        channel: `#${channel}`,
+        channel: `${channel}`,
         blocks: content.blocks,
       },
       { headers: { authorization: `Bearer ${slackToken}` } },

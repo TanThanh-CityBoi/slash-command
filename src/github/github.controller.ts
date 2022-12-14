@@ -40,7 +40,7 @@ export class GithubController {
           const result = await this.service.resetBranch(body);
           sendSlack(
             teamDomain,
-            body.channel_name,
+            body.channel_id,
             slackResponse({
               req,
               body,
