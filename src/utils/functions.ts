@@ -6,6 +6,7 @@ import { isEmpty } from 'lodash';
 import { COMMANDS, ROLE, ROLE_PREORITY } from './constant';
 import { AccountDTO } from 'src/dto';
 import * as moment from 'moment';
+import axios from 'axios';
 
 const getGithubOwner = async (teamDomain: string) => {
   const data = getData('github.json') || {};
@@ -119,6 +120,23 @@ const findUserById = (userId: string, teamDomain) => {
   return accounts.find((account) => account.userId === userId);
 };
 
+const sendSlack = (teamDomain, channel, content) => {
+  const slackToken = process.env[`BOT_TOKEN_${teamDomain}`];
+  send().catch((err) => console.log(err));
+
+  async function send() {
+    const url = 'https://slack.com/api/chat.postMessage';
+    await axios.post(
+      url,
+      {
+        channel: `#${channel}`,
+        blocks: content.blocks,
+      },
+      { headers: { authorization: `Bearer ${slackToken}` } },
+    );
+  }
+};
+
 export {
   response,
   verifySignature,
@@ -132,4 +150,5 @@ export {
   generateData,
   getGithubOwner,
   findUserById,
+  sendSlack,
 };

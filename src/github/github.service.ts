@@ -186,7 +186,7 @@ export class GithubService {
       getGithubOwner(teamDomain),
       findUserById(user_id, teamDomain),
     ]);
-    const [pullNumber, repo, ghOwner] = text.split(/\s+/g).slice(1);
+    const [repo, pullNumber, ghOwner] = text.split(/\s+/g).slice(1);
     const owner = ghOwner ? ghOwner : defaultOwner[0];
     if (isEmpty(owner)) {
       return response(400, 'GH_OWNER_NOT_FOUND');
@@ -274,7 +274,7 @@ export class GithubService {
       );
     }
     return {
-      Message: 'Reseted!',
+      Result: 'Reseted!',
       ref: result.data.ref,
     };
   }

@@ -1,5 +1,6 @@
 import { Body, Request, Controller, Post } from '@nestjs/common';
-import { response, validateCommand } from 'src/utils';
+import { slackResponse } from 'src/response-template';
+import { getTeamDomain, response, sendSlack, validateCommand } from 'src/utils';
 import { GithubService } from './github.service';
 
 @Controller('github')
@@ -17,6 +18,7 @@ export class GithubController {
       req.user.data,
       'GITHUB',
     );
+    const teamDomain = getTeamDomain(body);
     if (!isValid) return response(400, message);
 
     //switch param
@@ -32,8 +34,23 @@ export class GithubController {
       p: () => this.service.createPullRequest(body),
       //merge pull request
       m: () => this.service.mergePullRequest(body),
-      //reset branch
-      rb: () => this.service.resetBranch(body),
+      // reset branch
+      rb: () => {
+        const resetFun = async () => {
+          const result = await this.service.resetBranch(body);
+          sendSlack(
+            teamDomain,
+            body.channel_name,
+            slackResponse({
+              req,
+              body,
+              response: response(200, 'RESETED!', result),
+            }),
+          );
+        };
+        resetFun();
+        return 'Please wait!';
+      },
     };
     return _getResult[command]();
   }
