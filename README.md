@@ -1,5 +1,4 @@
 # slash-command
-slash command: slack
 
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
@@ -32,46 +31,55 @@ slash command: slack
 ## Installation
 
 ```bash
-$ npm install
+$ yarn
 ```
 
 ## Running the app
 
 ```bash
 # development
-$ npm run start
+$ yarn start
 
 # watch mode
-$ npm run start:dev
+$ yarn start:dev
 
 # production mode
 $ npm run start:prod
 ```
 
-## Test
+## Template .ENV
 
-```bash
-# unit tests
-$ npm run test
+PORT=5000
+SECRET_KEY_THANHCITYBOI=
+BOT_TOKEN_THANHCITYBOI=
+ROOT_USER_ID_THANHCITYBOI=
+ROOT_USER_NAME_THANHCITYBOI=
 
-# e2e tests
-$ npm run test:e2e
+# SECRET_KEY_{team_domain}=
+# ROOT_USER_ID_{team_domain}=
+# ROOT_USER_NAME_{team_domain}=
+# BOT_TOKEN_{team_domain}=
 
-# test coverage
-$ npm run test:cov
-```
+## Template data
 
-## Support
+// account.json:
+{
+  "THANHCITYBOI": [ /// team domain slack app
+    {
+      "userId": "U04CN1Y68JJ",   // userId in slack workspace
+      "userName": "tanthanhe",   // userName in slack workspace
+      "githubToken": "ghp_xxx",
+      "role": "root",  // [user, admin, ...]
+      "createdAt": "2022-12-14 15:00:14",
+      "createdBy": ""
+    }
+  ]
+}
+// github.json:
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
+{
+  "THANHCITYBOI": [ /// team domain slack app
+    "tanthanh-cityboi"  /// github owner
+  ]
+}
 
