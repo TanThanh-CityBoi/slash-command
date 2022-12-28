@@ -46,6 +46,7 @@
     "moment": "^2.29.1",
     "needle": "^2.6.0",
     "nestjs-request-context": "^1.0.0",
+    "octokit": "^2.0.10",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",

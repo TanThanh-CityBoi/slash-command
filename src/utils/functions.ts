@@ -1,21 +1,35 @@
 import * as crypto from 'crypto';
 import * as fs from 'fs/promises';
+import * as fsCre from 'fs';
 import { join } from 'path';
+import { isEmpty } from 'lodash';
+import { COMMANDS, ROLE, ROLE_PREORITY } from './constant';
+import { AccountDTO } from 'src/dto';
+import * as moment from 'moment';
+import axios from 'axios';
 
-const verifySignature = (req, body) => {
+const getGithubOwner = async (teamDomain: string) => {
+  const data = getData('github.json') || {};
+  return data[teamDomain.trim().toUpperCase()] || [];
+};
+
+const verifySignature = (req, rawBody, teamDomain) => {
   const signature = req.headers['x-slack-signature'];
   const timestamp = req.headers['x-slack-request-timestamp'];
-  const hmac = crypto.createHmac('sha256', process.env.SECRET_KEY);
+  const secret = process.env[`SECRET_KEY_${teamDomain.trim().toUpperCase()}`];
+  const hmac = crypto.createHmac('sha256', secret);
   const [version, hash] = signature.split('=');
-  hmac.update(`${version}:${timestamp}:${body}`);
+  hmac.update(`${version}:${timestamp}:${rawBody}`);
   return hmac.digest('hex') === hash;
 };
 
 const parseInfo = (rawInfo: string) => {
-  let [userId, userName] = rawInfo.split('|');
-  userId = userId.replace('<', '').replace('@', '').trim();
-  userName = userName.replace('>', '').trim();
-  return [userId, userName];
+  return rawInfo.replace(/<|@|>/g, '').split('|');
+};
+
+const getTeamDomain = (body: any): string => {
+  const { team_domain } = body;
+  return team_domain.trim().toUpperCase();
 };
 
 const generateRequestId = () => {
@@ -33,41 +47,108 @@ const response = (status, message, data = null, errors = null) => {
   };
 };
 
-const _getData = async (fileName: string): Promise<any> => {
-  let objData;
-  await fs
-    .readFile(join(__dirname, '../../data', fileName), 'utf-8')
-    .then((data) => {
-      objData = JSON.parse(data.toString());
-    })
-    .catch((error) => {
-      return { errors: error };
-    });
-  return objData;
+const getData = (fileName: string) => {
+  const path = join(process.cwd(), '/data', fileName);
+  const isExisted = fsCre.existsSync(path);
+  if (!isExisted) return null;
+  const data = fsCre.readFileSync(path, 'utf-8') || '{}';
+  return JSON.parse(data);
 };
 
-const _saveData = async (data: any, fileName): Promise<any> => {
+const saveData = async (data: any, fileName): Promise<any> => {
   try {
     await fs.writeFile(
-      join(__dirname, '../../data', fileName),
+      join(process.cwd(), '/data', fileName),
       JSON.stringify(data),
     );
-    return { message: 'CREATE_OK' };
+    return data;
   } catch (error) {
+    console.log(error);
     return { errors: error };
   }
 };
 
 const isCorrectUser = (userInfo: string): boolean => {
-  return /<@\w+[|]\w+>/.test(userInfo);
+  return /<@\w+[|].*>/.test(userInfo);
+};
+
+const validateCommand = (body: any, userInfo: AccountDTO, type: string) => {
+  const { command, text } = body;
+  const params = text.split(/\s+/g);
+  const existedCommand = COMMANDS[`_${type}`].find(
+    (x) =>
+      x.cmd == command &&
+      x.prm.length == params.length &&
+      x.prm[0] == params[0],
+  );
+  if (isEmpty(existedCommand)) {
+    return [false, 'COMMAND_NOT_FOUND'];
+  }
+  const userPriority = ROLE_PREORITY[userInfo.role.toUpperCase()];
+  const reqUserPriority = ROLE_PREORITY[existedCommand.role.toUpperCase()];
+  if (userPriority > reqUserPriority) {
+    return [false, 'PERMISSION_DENIED'];
+  }
+  return [true, 'SUCCESSFULLY', params[0] || 'NULL_PARAM'];
+};
+
+const generateData = async () => {
+  const fileData = getData('account.json') || {};
+  const listWorkSpace = Object.keys(process.env)
+    .filter((itm) => itm.includes('SECRET_KEY_'))
+    .map((key) => key.split('SECRET_KEY_')[1]);
+  listWorkSpace.map((workspace) => {
+    if (!isEmpty(fileData) && !isEmpty(fileData[workspace])) {
+      return;
+    }
+    const rootUser = new AccountDTO();
+    rootUser.userId = process.env[`ROOT_USER_ID_${workspace}`];
+    rootUser.userName = process.env[`ROOT_USER_NAME_${workspace}`];
+    rootUser.githubToken = '';
+    rootUser.role = ROLE.ROOT;
+    rootUser.createdAt = moment(new Date()).format('YYYY-MM-DD HH:mm:ss');
+    rootUser.createdBy = '';
+    fileData[workspace] = [rootUser];
+  });
+  await saveData(fileData, 'account.json');
+};
+
+const findUserById = (userId: string, teamDomain) => {
+  const objAccount = getData('account.json');
+  const accounts = objAccount[teamDomain] || [];
+  if (isEmpty(accounts) || !isEmpty(accounts.errors)) return null;
+  return accounts.find((account) => account.userId === userId);
+};
+
+const sendSlack = (teamDomain, channel, content) => {
+  const slackToken = process.env[`BOT_TOKEN_${teamDomain}`];
+  send().catch((err) => console.log(err));
+
+  async function send() {
+    const url = 'https://slack.com/api/chat.postMessage';
+    await axios.post(
+      url,
+      {
+        channel: channel,
+        blocks: content.blocks,
+      },
+      { headers: { authorization: `Bearer ${slackToken}` } },
+    );
+  }
 };
 
 export {
   response,
   verifySignature,
   parseInfo,
-  _getData,
+  getData,
   generateRequestId,
-  _saveData,
+  saveData,
   isCorrectUser,
+  validateCommand,
+  getTeamDomain,
+  generateData,
+  getGithubOwner,
+  findUserById,
+  sendSlack,
 };

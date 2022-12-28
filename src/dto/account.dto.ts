@@ -3,6 +3,6 @@ export class AccountDTO {
   userName: string;
   githubToken: string;
   role: string;
-  createdAt: Date;
+  createdAt: string;
   createdBy: string;
 }
