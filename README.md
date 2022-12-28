@@ -49,19 +49,21 @@ $ npm run start:prod
 
 ## Template .ENV
 
+``` 
 PORT=5000
 SECRET_KEY_THANHCITYBOI=
 BOT_TOKEN_THANHCITYBOI=
 ROOT_USER_ID_THANHCITYBOI=
 ROOT_USER_NAME_THANHCITYBOI=
 
-# SECRET_KEY_{team_domain}=
-# ROOT_USER_ID_{team_domain}=
-# ROOT_USER_NAME_{team_domain}=
-# BOT_TOKEN_{team_domain}=
-
+// SECRET_KEY_{team_domain}=
+// ROOT_USER_ID_{team_domain}=
+// ROOT_USER_NAME_{team_domain}=
+// BOT_TOKEN_{team_domain}=
+```
 ## Template data
 
+```
 // account.json:
 {
   "THANHCITYBOI": [ /// team domain slack app
@@ -75,11 +77,11 @@ ROOT_USER_NAME_THANHCITYBOI=
     }
   ]
 }
-// github.json:
 
+// github.json:
 {
   "THANHCITYBOI": [ /// team domain slack app
     "tanthanh-cityboi"  /// github owner
   ]
 }
-
+```
